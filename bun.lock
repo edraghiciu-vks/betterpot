@@ -30,7 +30,6 @@
         "@betterpot/shared-types": "workspace:*",
         "@betterpot/ui-kit": "workspace:*",
         "@solidjs/router": "^0.10.10",
-        "@superpoweredsdk/web": "^2.7.5",
         "solid-js": "^1.8.0",
       },
       "devDependencies": {
@@ -243,8 +242,6 @@
     "@solidjs/router": ["@solidjs/router@0.10.10", "", { "peerDependencies": { "solid-js": "^1.8.6" } }, "sha512-nGl7gMgsojuaupI5MAK2cFtkndmWWSAPhill/8La3IjujY3vMBamcQFymBsA2ejzxEYJjkOlEQHYgp2jNFkwuQ=="],
 
     "@solidjs/testing-library": ["@solidjs/testing-library@0.8.10", "", { "dependencies": { "@testing-library/dom": "^10.4.0" }, "peerDependencies": { "@solidjs/router": ">=0.9.0", "solid-js": ">=1.0.0" }, "optionalPeers": ["@solidjs/router"] }, "sha512-qdeuIerwyq7oQTIrrKvV0aL9aFeuwTd86VYD3afdq5HYEwoox1OBTJy4y8A3TFZr8oAR0nujYgCzY/8wgHGfeQ=="],
-
-    "@superpoweredsdk/web": ["@superpoweredsdk/web@2.7.5", "", {}, "sha512-ltNO9Mcd3rrsfRMAT1R/LDvDr8uaPBUUg20BiAIFiyn4ugzC+ShS6fQBgTCP0P3ONhgWmoj8jMwb32vFBg6Wkg=="],
 
     "@testing-library/dom": ["@testing-library/dom@10.4.1", "", { "dependencies": { "@babel/code-frame": "^7.10.4", "@babel/runtime": "^7.12.5", "@types/aria-query": "^5.0.1", "aria-query": "5.3.0", "dom-accessibility-api": "^0.5.9", "lz-string": "^1.5.0", "picocolors": "1.1.1", "pretty-format": "^27.0.2" } }, "sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg=="],
 

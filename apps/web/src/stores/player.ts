@@ -1,5 +1,6 @@
 // Player store - Audio player state management
-import { createContext, useContext, createSignal } from 'solid-js'
+import { createContext, useContext, createSignal, createEffect, onCleanup } from 'solid-js'
+import { AudioService, type AudioServiceCallbacks } from '../services/audioService'
 
 export interface Track {
   id: string
@@ -15,6 +16,8 @@ export interface PlayerState {
   currentTime: number
   duration: number
   volume: number
+  loading: boolean
+  error: string | null
   queue: Track[]
   currentIndex: number
 }
@@ -24,8 +27,11 @@ interface PlayerContextType {
   play: (track: Track) => void
   pause: () => void
   resume: () => void
+  stop: () => void
   seek: (time: number) => void
   setVolume: (volume: number) => void
+  skipForward: (seconds?: number) => void
+  skipBackward: (seconds?: number) => void
   next: () => void
   previous: () => void
 }
@@ -33,13 +39,46 @@ interface PlayerContextType {
 const PlayerContext = createContext<PlayerContextType>()
 
 export function PlayerProvider(props: { children: any }) {
+  // Create audio service instance
+  const audioService = new AudioService()
+
+  // State signals
   const [currentTrack, setCurrentTrack] = createSignal<Track | null>(null)
   const [isPlaying, setIsPlaying] = createSignal(false)
   const [currentTime, setCurrentTime] = createSignal(0)
   const [duration, setDuration] = createSignal(0)
   const [volume, setVolumeSignal] = createSignal(1)
+  const [loading, setLoading] = createSignal(false)
+  const [error, setError] = createSignal<string | null>(null)
   const [queue, setQueue] = createSignal<Track[]>([])
   const [currentIndex, setCurrentIndex] = createSignal(0)
+
+  // Set up audio service callbacks
+  createEffect(() => {
+    const callbacks: AudioServiceCallbacks = {
+      onTimeUpdate: (time: number) => setCurrentTime(time),
+      onDurationChange: (dur: number) => setDuration(dur),
+      onLoadStart: () => setLoading(true),
+      onLoadComplete: () => setLoading(false),
+      onLoadError: (err: string) => {
+        setError(err)
+        setLoading(false)
+      },
+      onPlayStateChange: (playing: boolean) => setIsPlaying(playing),
+      onVolumeChange: (vol: number) => setVolumeSignal(vol),
+      onTrackEnd: () => {
+        // Auto-play next track if in queue
+        next()
+      }
+    }
+
+    audioService.setCallbacks(callbacks)
+  })
+
+  // Cleanup on unmount
+  onCleanup(() => {
+    audioService.destroy()
+  })
 
   const state: PlayerState = {
     get currentTrack() { return currentTrack() },
@@ -47,30 +86,55 @@ export function PlayerProvider(props: { children: any }) {
     get currentTime() { return currentTime() },
     get duration() { return duration() },
     get volume() { return volume() },
+    get loading() { return loading() },
+    get error() { return error() },
     get queue() { return queue() },
     get currentIndex() { return currentIndex() }
   }
 
-  const play = (track: Track) => {
+  const play = async (track: Track) => {
+    if (!track.preview_url) {
+      setError('No preview URL available for this track')
+      return
+    }
+
+    setError(null)
     setCurrentTrack(track)
-    setIsPlaying(true)
-    setDuration(track.duration)
+    
+    const success = await audioService.loadTrack(track.preview_url)
+    if (success) {
+      audioService.play()
+    }
   }
 
   const pause = () => {
-    setIsPlaying(false)
+    audioService.pause()
   }
 
   const resume = () => {
-    setIsPlaying(true)
+    audioService.play()
+  }
+
+  const stop = () => {
+    audioService.stop()
+    setCurrentTrack(null)
   }
 
   const seek = (time: number) => {
-    setCurrentTime(time)
+    audioService.seek(time)
   }
 
   const setVolume = (vol: number) => {
-    setVolumeSignal(vol)
+    const clampedVol = Math.max(0, Math.min(1, vol))
+    audioService.setVolume(clampedVol)
+  }
+
+  const skipForward = (seconds: number = 10) => {
+    audioService.skipForward(seconds)
+  }
+
+  const skipBackward = (seconds: number = 10) => {
+    audioService.skipBackward(seconds)
   }
 
   const next = () => {
@@ -100,8 +164,11 @@ export function PlayerProvider(props: { children: any }) {
     play,
     pause,
     resume,
+    stop,
     seek,
     setVolume,
+    skipForward,
+    skipBackward,
     next,
     previous
   }

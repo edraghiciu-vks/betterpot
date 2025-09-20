@@ -16,7 +16,6 @@
     "@betterpot/shared-types": "workspace:*",
     "@betterpot/ui-kit": "workspace:*",
     "@solidjs/router": "^0.10.10",
-    "@superpoweredsdk/web": "^2.7.5",
     "solid-js": "^1.8.0"
   },
   "devDependencies": {

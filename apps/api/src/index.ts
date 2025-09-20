@@ -3,13 +3,12 @@ import { Hono } from 'hono'
 import { authRoutes } from './routes/auth'
 import { searchRoutes } from './routes/search'
 import { catalogRoutes } from './routes/catalog'
-import { corsMiddleware, securityHeaders } from './middleware/cors'
+import { corsMiddleware } from './middleware/cors'
 
 const app = new Hono()
 
 // Middleware
 app.use('/*', corsMiddleware)
-app.use('/*', securityHeaders)
 
 // Routes
 app.route('/auth', authRoutes)
