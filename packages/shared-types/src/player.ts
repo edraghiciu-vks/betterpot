@@ -78,6 +78,23 @@ export interface PlayerState {
   error: string | null;
 }
 
+// Additional types for preview player functionality
+export interface PreviewPlayerState extends PlayerState {
+  superpoweredInitialized: boolean;
+  loadingProgress: number;
+}
+
+export interface PlayerControls {
+  play: (track?: Track) => Promise<boolean>;
+  pause: () => boolean;
+  stop: () => boolean;
+  seek: (time: number) => boolean;
+  next: () => void;
+  previous: () => void;
+  setVolume: (volume: number) => boolean;
+  toggleMute: () => boolean;
+}
+
 export interface AudioSettings {
   volume: number;
   crossfade: number;

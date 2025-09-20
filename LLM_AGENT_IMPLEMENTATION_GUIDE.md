@@ -249,11 +249,11 @@ mkdir -p apps/web/public/samples
 - [x] No Howler.js references remain
 
 ### **Phase 2 Complete When**:
-- [ ] Audio service class created
-- [ ] AudioWorklet processor file exists
-- [ ] Shared types updated
-- [ ] Can initialize Superpowered context
-- [ ] Can load and decode an audio file
+- [x] Audio service class created
+- [x] AudioWorklet processor file exists
+- [x] Shared types updated
+- [x] Can initialize Superpowered context
+- [x] Can load and decode an audio file
 
 ### **Phase 3 Complete When**:
 - [ ] Player store uses Superpowered service
