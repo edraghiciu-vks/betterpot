@@ -1,0 +1,21 @@
+{
+  "name": "@betterpot/api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "start": "bun dist/index.js",
+    "test": "echo 'No tests yet for API'",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^3.11.0",
+    "@betterpot/betterpot-client": "workspace:*",
+    "@betterpot/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  }
+}
