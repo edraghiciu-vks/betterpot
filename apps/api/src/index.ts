@@ -21,7 +21,7 @@ app.route('/catalog', catalogRoutes)
 // Health check
 app.get('/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }))
 
-const port = parseInt(process.env.PORT || '8000')
+const port = parseInt(process.env.PORT || '8001')
 
 console.log(`🎵 Beatport API Server starting on port ${port}`)
 

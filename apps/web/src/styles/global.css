@@ -7,8 +7,6 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #121212;
-  color: #ffffff;
   overflow-x: hidden;
 }
 
@@ -47,6 +45,11 @@ nav a {
 
 nav a:hover {
   background: #333;
+  color: #fff;
+}
+
+nav a.active {
+  background: #ff6b35;
   color: #fff;
 }
 

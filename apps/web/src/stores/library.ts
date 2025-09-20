@@ -1,5 +1,5 @@
 // Library store - Music library state management
-// TODO: Import SolidJS dependencies once packages are installed
+import { createContext, useContext, createSignal } from 'solid-js'
 
 export interface LibraryState {
   tracks: any[]
@@ -14,20 +14,80 @@ export interface LibraryState {
   }
 }
 
-// Placeholder exports - will be replaced with actual SolidJS store
-export const LibraryProvider = ({ children }: { children: any }) => children
+interface LibraryContextType {
+  state: LibraryState
+  search: (query: string) => void
+  setFilters: (filters: any) => void
+  loadTracks: () => void
+  loadReleases: () => void
+}
 
-export const useLibrary = () => ({
-  state: {
-    tracks: [],
-    releases: [],
-    artists: [],
-    isLoading: false,
-    searchQuery: '',
-    filters: {}
-  },
-  search: (query: string) => console.log('Search:', query),
-  setFilters: (filters: any) => console.log('Filters:', filters),
-  loadTracks: () => console.log('Load tracks'),
-  loadReleases: () => console.log('Load releases')
-})
+const LibraryContext = createContext<LibraryContextType>()
+
+export function LibraryProvider(props: { children: any }) {
+  const [tracks, setTracks] = createSignal<any[]>([])
+  const [releases, setReleases] = createSignal<any[]>([])
+  const [artists, setArtists] = createSignal<any[]>([])
+  const [isLoading, setIsLoading] = createSignal(false)
+  const [searchQuery, setSearchQuery] = createSignal('')
+  const [filters, setFiltersSignal] = createSignal<any>({})
+
+  const state: LibraryState = {
+    get tracks() { return tracks() },
+    get releases() { return releases() },
+    get artists() { return artists() },
+    get isLoading() { return isLoading() },
+    get searchQuery() { return searchQuery() },
+    get filters() { return filters() }
+  }
+
+  const search = (query: string) => {
+    setSearchQuery(query)
+    setIsLoading(true)
+    // TODO: Implement actual search logic
+    setTimeout(() => setIsLoading(false), 1000)
+  }
+
+  const setFilters = (newFilters: any) => {
+    setFiltersSignal(newFilters)
+  }
+
+  const loadTracks = () => {
+    setIsLoading(true)
+    // TODO: Implement actual track loading
+    setTimeout(() => {
+      setTracks([{ id: '1', name: 'Sample Track' }])
+      setIsLoading(false)
+    }, 1000)
+  }
+
+  const loadReleases = () => {
+    setIsLoading(true)
+    // TODO: Implement actual release loading
+    setTimeout(() => {
+      setReleases([{ id: '1', name: 'Sample Release' }])
+      setIsLoading(false)
+    }, 1000)
+  }
+
+  const contextValue: LibraryContextType = {
+    state,
+    search,
+    setFilters,
+    loadTracks,
+    loadReleases
+  }
+
+  return LibraryContext.Provider({ 
+    value: contextValue, 
+    children: props.children
+  })
+}
+
+export function useLibrary() {
+  const context = useContext(LibraryContext)
+  if (!context) {
+    throw new Error('useLibrary must be used within LibraryProvider')
+  }
+  return context
+}
