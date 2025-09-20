@@ -1,5 +1,13 @@
+import { ReactNode } from 'react';
+
 // Input component placeholder
-export const Input = ({ label, error, ...props }: any) => {
+interface InputProps {
+  label?: string;
+  error?: string;
+  [key: string]: any;
+}
+
+export const Input = ({ label, error, ...props }: InputProps) => {
   return (
     <div className="flex flex-col gap-1">
       {label && (

@@ -1,5 +1,14 @@
+import { ReactNode } from 'react';
+
 // Button component placeholder
-export const Button = ({ children, onClick, variant = 'primary', ...props }: any) => {
+interface ButtonProps {
+  children: ReactNode;
+  onClick?: () => void;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  [key: string]: any;
+}
+
+export const Button = ({ children, onClick, variant = 'primary', ...props }: ButtonProps) => {
   const baseClasses = 'px-4 py-2 rounded-md font-medium transition-colors'
   const variantClasses = {
     primary: 'bg-orange-500 hover:bg-orange-600 text-white',
