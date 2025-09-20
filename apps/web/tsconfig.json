@@ -4,7 +4,9 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "types": ["vite/client"]
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "public"]
