@@ -58,6 +58,12 @@ nav a.active {
   padding: 2rem;
 }
 
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
 .player {
   background: #1a1a1a;
   padding: 1rem 2rem;

@@ -12,6 +12,7 @@ import { ErrorDialog } from './components/ErrorDialog'
 // Page Components
 import Home from './pages/Home'
 import LibraryPage from './pages/LibraryPage'
+import SearchPage from './pages/SearchPage'
 import './styles/global.css'
 
 const root = document.getElementById('root')
@@ -67,5 +68,6 @@ render(() => (
   <Router root={App}>
     <Route path="/" component={Home} />
     <Route path="/library" component={LibraryPage} />
+    <Route path="/search" component={SearchPage} />
   </Router>
 ), root!)

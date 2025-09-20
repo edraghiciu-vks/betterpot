@@ -31,3 +31,30 @@ export interface AuthTokens {
   token_type: string;
   scope?: string;
 }
+
+export interface SearchTracksParams {
+  q: string;
+  page?: number;
+  per_page?: number;
+  genre?: string;
+  bpm?: string;
+  key?: string;
+  sort?: string;
+}
+
+export interface SearchTracksResponse {
+  results: import('./beatport').BeatportTrack[];
+  count: number;
+  next?: string;
+  previous?: string;
+  page: number;
+  per_page: number;
+  total_pages: number;
+}
+
+export interface BeatportSearchResponse {
+  results: any[];
+  count: number;
+  next?: string;
+  previous?: string;
+}

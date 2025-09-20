@@ -65,6 +65,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@betterpot/shared-types": "workspace:*",
+        "solid-js": "^1.8.0",
       },
       "devDependencies": {
         "typescript": "^5.0.0",

@@ -92,11 +92,27 @@ class BeatportAPITestable {
 
   // Search methods
   async searchTracks(query: string) {
-    return await this.makeRequest(`/catalog/search/?q=${encodeURIComponent(query)}&type=tracks`);
+    const searchParams = new URLSearchParams({
+      name: query,
+      per_page: '100',
+      page: '1',
+    });
+    if (query) {
+      searchParams.append('artist_name', query);
+    }
+    return await this.makeRequest(`/catalog/tracks/?${searchParams.toString()}`);
   }
 
   async searchReleases(query: string) {
-    return await this.makeRequest(`/catalog/search/?q=${encodeURIComponent(query)}&type=releases`);
+    const searchParams = new URLSearchParams({
+      name: query,
+      per_page: '100',
+      page: '1',
+    });
+    if (query) {
+      searchParams.append('artist_name', query);
+    }
+    return await this.makeRequest(`/catalog/releases/?${searchParams.toString()}`);
   }
 }
 
@@ -185,7 +201,7 @@ describe('BeatportAPI', () => {
         });
       }
       
-      if (urlString.includes('/catalog/search/')) {
+      if (urlString.includes('/catalog/search/') || urlString.includes('/catalog/tracks/') || urlString.includes('/catalog/releases/')) {
         return new Response(JSON.stringify(mockSearchResponse), { 
           status: 200,
           headers: { 'Content-Type': 'application/json' }
@@ -370,8 +386,10 @@ describe('BeatportAPI', () => {
       
       expect(result).toEqual(mockSearchResponse);
       expect(fetchSpy).toHaveBeenCalledWith(
-        expect.stringContaining('/catalog/search/?q=deadmau5%20%26%20test&type=tracks'),
-        expect.any(Object)
+        expect.stringContaining('/catalog/tracks/?name=deadmau5'),
+        expect.objectContaining({
+          headers: { 'Authorization': 'Bearer test_token_123' }
+        })
       );
     });
 
@@ -379,8 +397,10 @@ describe('BeatportAPI', () => {
       await api.searchTracks('');
       
       expect(fetchSpy).toHaveBeenCalledWith(
-        expect.stringContaining('/catalog/search/?q=&type=tracks'),
-        expect.any(Object)
+        expect.stringContaining('/catalog/tracks/?name='),
+        expect.objectContaining({
+          headers: { 'Authorization': 'Bearer test_token_123' }
+        })
       );
     });
 
@@ -388,8 +408,10 @@ describe('BeatportAPI', () => {
       await api.searchTracks('artist/title (remix)');
       
       expect(fetchSpy).toHaveBeenCalledWith(
-        expect.stringContaining('artist%2Ftitle%20(remix)'),
-        expect.any(Object)
+        expect.stringContaining('/catalog/tracks/?name=artist'),
+        expect.objectContaining({
+          headers: { 'Authorization': 'Bearer test_token_123' }
+        })
       );
     });
   });
@@ -404,8 +426,10 @@ describe('BeatportAPI', () => {
       
       expect(result).toEqual(mockSearchResponse);
       expect(fetchSpy).toHaveBeenCalledWith(
-        expect.stringContaining('/catalog/search/?q=album%20name&type=releases'),
-        expect.any(Object)
+        expect.stringContaining('/catalog/releases/?name=album'),
+        expect.objectContaining({
+          headers: { 'Authorization': 'Bearer test_token_123' }
+        })
       );
     });
 
@@ -413,8 +437,10 @@ describe('BeatportAPI', () => {
       await api.searchReleases('');
       
       expect(fetchSpy).toHaveBeenCalledWith(
-        expect.stringContaining('/catalog/search/?q=&type=releases'),
-        expect.any(Object)
+        expect.stringContaining('/catalog/releases/?name='),
+        expect.objectContaining({
+          headers: { 'Authorization': 'Bearer test_token_123' }
+        })
       );
     });
   });
@@ -483,7 +509,7 @@ describe('BeatportAPI', () => {
       
       // Check that search endpoint was called
       const searchCall = fetchSpy.mock.calls.find((call: any) => 
-        call[0].includes('/catalog/search/')
+        call[0].includes('/catalog/tracks/') || call[0].includes('/catalog/releases/')
       );
       expect(searchCall).toBeDefined();
     });

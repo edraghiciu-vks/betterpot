@@ -3,56 +3,56 @@
 [0m[1mbun test [0m[2mv1.2.21 (7c45ed97)[0m
 [0m
 tests/token-manager.test.ts:
-[0m[32m✓[0m [0mTokenManager[2m > [0mconstructor[2m >[0m[1m should use default token file name when none provided[0m [0m[2m[0.83ms[0m[2m][0m
+[0m[32m✓[0m [0mTokenManager[2m > [0mconstructor[2m >[0m[1m should use default token file name when none provided[0m [0m[2m[0.02ms[0m[2m][0m
 [0m[32m✓[0m [0mTokenManager[2m > [0mconstructor[2m >[0m[1m should use custom token file name when provided[0m
-[0m[32m✓[0m [0mTokenManager[2m > [0msaveToken[2m >[0m[1m should save token data to file with correct format[0m [0m[2m[1.84ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0msaveToken[2m >[0m[1m should handle missing refresh_token gracefully[0m [0m[2m[0.12ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0msaveToken[2m >[0m[1m should handle missing scope gracefully[0m [0m[2m[0.05ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0msaveToken[2m >[0m[1m should handle file write errors gracefully[0m [0m[2m[1.19ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0mloadToken[2m >[0m[1m should return null when token file does not exist[0m [0m[2m[0.12ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0mloadToken[2m >[0m[1m should load and parse valid token data[0m [0m[2m[0.15ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0mloadToken[2m >[0m[1m should handle JSON parse errors gracefully[0m [0m[2m[0.03ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0mloadToken[2m >[0m[1m should handle file read errors gracefully[0m [0m[2m[0.03ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0misTokenExpired[2m >[0m[1m should return false for valid token with buffer time[0m [0m[2m[0.03ms[0m[2m][0m
+[0m[32m✓[0m [0mTokenManager[2m > [0msaveToken[2m >[0m[1m should save token data to file with correct format[0m [0m[2m[0.12ms[0m[2m][0m
+[0m[32m✓[0m [0mTokenManager[2m > [0msaveToken[2m >[0m[1m should handle missing refresh_token gracefully[0m [0m[2m[0.02ms[0m[2m][0m
+[0m[32m✓[0m [0mTokenManager[2m > [0msaveToken[2m >[0m[1m should handle missing scope gracefully[0m
+[0m[32m✓[0m [0mTokenManager[2m > [0msaveToken[2m >[0m[1m should handle file write errors gracefully[0m [0m[2m[0.03ms[0m[2m][0m
+[0m[32m✓[0m [0mTokenManager[2m > [0mloadToken[2m >[0m[1m should return null when token file does not exist[0m [0m[2m[0.02ms[0m[2m][0m
+[0m[32m✓[0m [0mTokenManager[2m > [0mloadToken[2m >[0m[1m should load and parse valid token data[0m [0m[2m[0.02ms[0m[2m][0m
+[0m[32m✓[0m [0mTokenManager[2m > [0mloadToken[2m >[0m[1m should handle JSON parse errors gracefully[0m [0m[2m[0.02ms[0m[2m][0m
+[0m[32m✓[0m [0mTokenManager[2m > [0mloadToken[2m >[0m[1m should handle file read errors gracefully[0m
+[0m[32m✓[0m [0mTokenManager[2m > [0misTokenExpired[2m >[0m[1m should return false for valid token with buffer time[0m [0m[2m[0.01ms[0m[2m][0m
 [0m[32m✓[0m [0mTokenManager[2m > [0misTokenExpired[2m >[0m[1m should return true for expired token[0m
 [0m[32m✓[0m [0mTokenManager[2m > [0misTokenExpired[2m >[0m[1m should return true for token expiring within buffer time (5 minutes)[0m
 [0m[32m✓[0m [0mTokenManager[2m > [0misTokenExpired[2m >[0m[1m should return false for token expiring just outside buffer time[0m
-[0m[32m✓[0m [0mTokenManager[2m > [0mgetValidToken[2m >[0m[1m should return null when no token file exists[0m [0m[2m[0.02ms[0m[2m][0m
+[0m[32m✓[0m [0mTokenManager[2m > [0mgetValidToken[2m >[0m[1m should return null when no token file exists[0m [0m[2m[0.01ms[0m[2m][0m
 [0m[32m✓[0m [0mTokenManager[2m > [0mgetValidToken[2m >[0m[1m should return valid token when token is not expired[0m [0m[2m[0.01ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0mgetValidToken[2m >[0m[1m should return null for expired token[0m [0m[2m[0.01ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0mgetValidToken[2m >[0m[1m should return null when token file is corrupted[0m [0m[2m[0.01ms[0m[2m][0m
+[0m[32m✓[0m [0mTokenManager[2m > [0mgetValidToken[2m >[0m[1m should return null for expired token[0m
+[0m[32m✓[0m [0mTokenManager[2m > [0mgetValidToken[2m >[0m[1m should return null when token file is corrupted[0m
 [0m[32m✓[0m [0mTokenManager[2m > [0mclearToken[2m >[0m[1m should delete token file when it exists[0m [0m[2m[0.02ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0mclearToken[2m >[0m[1m should not attempt to delete when file does not exist[0m [0m[2m[0.01ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0mclearToken[2m >[0m[1m should handle file deletion errors gracefully[0m [0m[2m[0.03ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0mintegration scenarios[2m >[0m[1m should complete save and load cycle correctly[0m [0m[2m[0.17ms[0m[2m][0m
-[0m[32m✓[0m [0mTokenManager[2m > [0mintegration scenarios[2m >[0m[1m should handle token expiration workflow[0m
+[0m[32m✓[0m [0mTokenManager[2m > [0mclearToken[2m >[0m[1m should not attempt to delete when file does not exist[0m
+[0m[32m✓[0m [0mTokenManager[2m > [0mclearToken[2m >[0m[1m should handle file deletion errors gracefully[0m [0m[2m[0.02ms[0m[2m][0m
+[0m[32m✓[0m [0mTokenManager[2m > [0mintegration scenarios[2m >[0m[1m should complete save and load cycle correctly[0m [0m[2m[0.01ms[0m[2m][0m
+[0m[32m✓[0m [0mTokenManager[2m > [0mintegration scenarios[2m >[0m[1m should handle token expiration workflow[0m [0m[2m[0.01ms[0m[2m][0m
 [0m
 tests/beatport-api.test.ts:
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mconstructor[2m >[0m[1m should initialize with provided credentials[0m [0m[2m[0.04ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mconstructor[2m >[0m[1m should initialize with undefined values when no credentials provided[0m [0m[2m[0.01ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mgetPublicClientId[2m >[0m[1m should return existing client_id if already set[0m [0m[2m[0.63ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mgetPublicClientId[2m >[0m[1m should scrape client_id from Beatport docs when not set[0m [0m[2m[3.52ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mgetPublicClientId[2m >[0m[1m should throw error when no JavaScript files found[0m [0m[2m[0.19ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mgetPublicClientId[2m >[0m[1m should throw error when client_id not found in any JavaScript files[0m [0m[2m[0.44ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mgetPublicClientId[2m >[0m[1m should handle JavaScript file fetch errors gracefully[0m [0m[2m[0.45ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mintrospect[2m >[0m[1m should make introspection request with access token[0m [0m[2m[0.12ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mintrospect[2m >[0m[1m should throw error when no access token available[0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mintrospect[2m >[0m[1m should throw error when introspection request fails[0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mmakeRequest[2m >[0m[1m should make authenticated request to API endpoint[0m [0m[2m[0.28ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mmakeRequest[2m >[0m[1m should throw error when no access token available[0m [0m[2m[0.11ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mmakeRequest[2m >[0m[1m should throw error when API request fails[0m [0m[2m[0.12ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0msearchTracks[2m >[0m[1m should search for tracks with proper URL encoding[0m [0m[2m[0.42ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0msearchTracks[2m >[0m[1m should handle empty search query[0m [0m[2m[0.08ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0msearchTracks[2m >[0m[1m should handle special characters in search query[0m [0m[2m[0.03ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0msearchReleases[2m >[0m[1m should search for releases with proper URL encoding[0m [0m[2m[0.20ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0msearchReleases[2m >[0m[1m should handle empty search query[0m [0m[2m[0.08ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0merror handling[2m >[0m[1m should handle network errors gracefully[0m [0m[2m[1.05ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0merror handling[2m >[0m[1m should handle malformed JSON responses[0m [0m[2m[0.17ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0merror handling[2m >[0m[1m should handle timeout scenarios[0m [0m[2m[[1m102.99ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mintegration scenarios[2m >[0m[1m should complete full workflow: scrape client_id -> set token -> make requests[0m [0m[2m[0.27ms[0m[2m][0m
-[0m[32m✓[0m [0mBeatportAPI[2m > [0mintegration scenarios[2m >[0m[1m should handle partial failures gracefully[0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mconstructor[2m >[0m[1m should initialize with provided credentials[0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mconstructor[2m >[0m[1m should initialize with undefined values when no credentials provided[0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mgetPublicClientId[2m >[0m[1m should return existing client_id if already set[0m [0m[2m[0.12ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mgetPublicClientId[2m >[0m[1m should scrape client_id from Beatport docs when not set[0m [0m[2m[0.27ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mgetPublicClientId[2m >[0m[1m should throw error when no JavaScript files found[0m [0m[2m[0.03ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mgetPublicClientId[2m >[0m[1m should throw error when client_id not found in any JavaScript files[0m [0m[2m[0.05ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mgetPublicClientId[2m >[0m[1m should handle JavaScript file fetch errors gracefully[0m [0m[2m[0.08ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mintrospect[2m >[0m[1m should make introspection request with access token[0m [0m[2m[0.06ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mintrospect[2m >[0m[1m should throw error when no access token available[0m [0m[2m[0.01ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mintrospect[2m >[0m[1m should throw error when introspection request fails[0m [0m[2m[0.02ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mmakeRequest[2m >[0m[1m should make authenticated request to API endpoint[0m [0m[2m[0.04ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mmakeRequest[2m >[0m[1m should throw error when no access token available[0m [0m[2m[0.02ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mmakeRequest[2m >[0m[1m should throw error when API request fails[0m [0m[2m[0.02ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0msearchTracks[2m >[0m[1m should search for tracks with proper URL encoding[0m [0m[2m[0.03ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0msearchTracks[2m >[0m[1m should handle empty search query[0m [0m[2m[0.02ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0msearchTracks[2m >[0m[1m should handle special characters in search query[0m [0m[2m[0.02ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0msearchReleases[2m >[0m[1m should search for releases with proper URL encoding[0m [0m[2m[0.04ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0msearchReleases[2m >[0m[1m should handle empty search query[0m [0m[2m[0.02ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0merror handling[2m >[0m[1m should handle network errors gracefully[0m [0m[2m[0.03ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0merror handling[2m >[0m[1m should handle malformed JSON responses[0m [0m[2m[0.04ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0merror handling[2m >[0m[1m should handle timeout scenarios[0m [0m[2m[[1m101.38ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mintegration scenarios[2m >[0m[1m should complete full workflow: scrape client_id -> set token -> make requests[0m [0m[2m[0.24ms[0m[2m][0m
+[0m[32m✓[0m [0mBeatportAPI[2m > [0mintegration scenarios[2m >[0m[1m should handle partial failures gracefully[0m [0m[2m[0.27ms[0m[2m][0m
 
 [0m[32m 46 pass[0m
 [0m[2m 0 fail[0m
  89 expect() calls
-Ran 46 tests across 2 files. [0m[2m[[1m234.00ms[0m[2m][0m
+Ran 46 tests across 2 files. [0m[2m[[1m115.00ms[0m[2m][0m

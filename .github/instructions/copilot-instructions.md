@@ -8,7 +8,7 @@ This is a **Beatport API client monorepo** built with **Bun + TypeScript** that 
 ### Monorepo Structure (Turborepo + Bun Workspaces)
 ```
 apps/api/          # Hono.js API server (port 8000)
-apps/web/          # React/SolidJS frontend (port 3000)
+apps/web/          # SolidJS frontend (port 3000)
 packages/betterpot-client/   # Core Beatport API client
 packages/shared-types/       # Shared TypeScript definitions
 packages/ui-kit/            # Reusable UI components
@@ -74,7 +74,7 @@ const tracks = await api.searchTracks("house music");
 - **Auth Flow Breaks**: OAuth redirect handling is complex, may need manual token fallback
 - **Token Expiry**: Always check `TokenManager.getValidToken()` first
 
-### Frontend Architecture (React/SolidJS Migration)
+### Frontend Architecture (SolidJS Migration)
 - **State Management**: Context providers in `apps/web/src/stores/` (auth, player, library)
 - **Component Structure**: Layout → Features → UI Kit components
 - **Audio**: Planned Howler.js integration for playback

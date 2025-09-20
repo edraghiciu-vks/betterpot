@@ -45,8 +45,6 @@ export function AuthProvider(props: { children: any }) {
     setApiError(null)
     
     try {
-      console.log('Fetching user data from backend API...')
-      
       // Call our backend API which handles Beatport authentication
       const response = await fetch('http://localhost:8001/auth/user')
       
@@ -68,9 +66,7 @@ export function AuthProvider(props: { children: any }) {
       }
       
       setUser(transformedUser)
-      console.log('✅ User data loaded:', transformedUser.name || transformedUser.username)
     } catch (error) {
-      console.error('Failed to fetch user data:', error)
       setApiError(error instanceof Error ? error.message : 'Failed to load user data')
     } finally {
       setIsLoading(false)

@@ -38,11 +38,8 @@ export class BeatportAPI {
   // Step 1: Scrape the public client_id from Beatport's docs (like beets does)
   async getPublicClientId(): Promise<string> {
     if (this.clientId) {
-      console.log('Using provided client_id');
       return this.clientId;
     }
-
-    console.log('🔍 Scraping client_id from Beatport docs...');
     
     try {
       // Fetch the docs page HTML
@@ -62,7 +59,6 @@ export class BeatportAPI {
         if (!scriptPath) continue;
 
         const scriptUrl = `https://api.beatport.com${scriptPath}`;
-        console.log(`🔍 Checking ${scriptUrl} for client_id...`);
         
         try {
           const jsResponse = await fetch(scriptUrl);
@@ -72,12 +68,11 @@ export class BeatportAPI {
           const clientIdMatch = jsContent.match(/API_CLIENT_ID:\s*['"](.*?)['"]/);
           if (clientIdMatch && clientIdMatch[1]) {
             const clientId = clientIdMatch[1];
-            console.log(`✅ Found client_id: ${clientId}`);
             this.clientId = clientId;
             return clientId;
           }
         } catch (jsError) {
-          console.log(`⚠️ Failed to fetch ${scriptUrl}:`, jsError);
+          // Continue to next script if this one fails
           continue;
         }
       }
@@ -98,8 +93,6 @@ export class BeatportAPI {
     }
 
     const clientId = await this.getPublicClientId();
-    
-    console.log('🔑 Authenticating with username/password...');
 
     // Create a session to maintain cookies across requests
     const cookies = new Map<string, string>();
@@ -127,7 +120,6 @@ export class BeatportAPI {
 
     try {
       // Step 1: Login to get session cookies
-      console.log('🔐 Logging in to get session...');
       const loginResponse = await fetch(`${this.baseUrl}/auth/login/`, {
         method: 'POST',
         headers: {
@@ -153,10 +145,7 @@ export class BeatportAPI {
         throw new Error(`Login failed: ${JSON.stringify(loginData)}`);
       }
 
-      console.log(`✅ Logged in as ${loginData.username} <${loginData.email}>`);
-
       // Step 2: Get authorization page to obtain auth code
-      console.log('🔍 Getting authorization code...');
       const authorizeUrl = new URL(`${this.baseUrl}/auth/o/authorize/`);
       authorizeUrl.searchParams.set('response_type', 'code');
       authorizeUrl.searchParams.set('client_id', clientId);
@@ -171,39 +160,32 @@ export class BeatportAPI {
         redirect: 'manual', // Don't follow redirects automatically
       });
 
-      console.log(`📍 Authorize response status: ${authorizeResponse.status}`);
-
       let authCode: string | null = null;
 
       if (authorizeResponse.status === 302) {
         // Redirect response - extract auth code from Location header
         const locationHeader = authorizeResponse.headers.get('location');
-        console.log(`📍 Redirect location: ${locationHeader}`);
         
         if (locationHeader) {
           try {
             const redirectUrl = new URL(locationHeader, this.baseUrl);
             authCode = redirectUrl.searchParams.get('code');
-            console.log(`🔑 Auth code from redirect: ${authCode ? 'found' : 'not found'}`);
           } catch (urlError) {
-            console.log(`⚠️ Failed to parse redirect URL: ${urlError}`);
+            // Continue with other methods if URL parsing fails
           }
         }
       } else if (authorizeResponse.status === 200) {
         // Sometimes the response is 200 with a form or page content
         const authorizeText = await authorizeResponse.text();
-        console.log(`📄 Authorize response length: ${authorizeText.length} chars`);
         
         // Look for auth code in the response body
         const codeMatch = authorizeText.match(/code[=:]\s*["']([^"']+)["']/i);
         if (codeMatch && codeMatch[1]) {
           authCode = codeMatch[1];
-          console.log(`🔑 Auth code from response body: found`);
         } else {
           // Check if there's a form we need to submit
           const formMatch = authorizeText.match(/<form[^>]*action=["']([^"']+)["'][^>]*>/i);
           if (formMatch) {
-            console.log('📋 Found authorization form, submitting...');
             const formAction = formMatch[1];
             
             // Submit the authorization form
@@ -222,12 +204,10 @@ export class BeatportAPI {
 
             if (formResponse.status === 302) {
               const formLocationHeader = formResponse.headers.get('location');
-              console.log(`📍 Form redirect location: ${formLocationHeader}`);
               
               if (formLocationHeader) {
                 const formRedirectUrl = new URL(formLocationHeader, this.baseUrl);
                 authCode = formRedirectUrl.searchParams.get('code');
-                console.log(`🔑 Auth code from form redirect: ${authCode ? 'found' : 'not found'}`);
               }
             }
           }
@@ -235,20 +215,10 @@ export class BeatportAPI {
       }
 
       if (!authCode) {
-        console.log('❌ Failed to get authorization code. Falling back to manual method...');
-        console.log('\n🔧 Manual steps:');
-        console.log('1. Visit: https://api.beatport.com/v4/docs/');
-        console.log('2. Login with your credentials');
-        console.log('3. Open Network tab in dev tools');
-        console.log('4. Look for /auth/o/token/ request');
-        console.log('5. Copy the response and set BEATPORT_TOKEN in .env');
-        throw new Error('Could not obtain authorization code automatically. Please use manual token method.');
+        throw new Error('Could not obtain authorization code automatically. Please use manual token method with BEATPORT_TOKEN environment variable.');
       }
 
-      console.log('✅ Got authorization code');
-
       // Step 3: Exchange auth code for access token
-      console.log('🔄 Exchanging auth code for access token...');
       const tokenResponse = await fetch(`${this.baseUrl}/auth/o/token/`, {
         method: 'POST',
         headers: {
@@ -274,40 +244,28 @@ export class BeatportAPI {
       // Save token for future use
       this.tokenManager.saveToken(tokenData);
       
-      console.log('✅ Got access token!');
-      
       return tokenData;
 
     } catch (error) {
-      console.log(`⚠️ Authentication error: ${error}`);
       throw error;
     }
   }
 
   // Method 2: Manual token extraction (like beets Method 2)
   async authenticateWithManualToken(): Promise<void> {
-    console.log('\n🔧 Manual Token Method:');
-    console.log('1. Visit: https://api.beatport.com/v4/docs/');
-    console.log('2. Open Network tab in browser dev tools');
-    console.log('3. Login with your Beatport account');
-    console.log('4. Look for request to: https://api.beatport.com/v4/auth/o/token/');
-    console.log('5. Copy the full JSON response');
-    console.log('6. Create a .env file with: BEATPORT_TOKEN={"access_token":"..."}');
-    
     // Try to load from environment
     const tokenEnv = process.env.BEATPORT_TOKEN;
     if (tokenEnv) {
       try {
         const tokenData = JSON.parse(tokenEnv) as TokenResponse;
         this.accessToken = tokenData.access_token;
-        console.log('✅ Loaded token from BEATPORT_TOKEN environment variable');
         return;
       } catch (error) {
         throw new Error('Invalid token format in BEATPORT_TOKEN environment variable');
       }
     }
     
-    throw new Error('No manual token found. Please set BEATPORT_TOKEN environment variable.');
+    throw new Error('No manual token found. Please set BEATPORT_TOKEN environment variable with format: {"access_token":"...","expires_in":36000}');
   }
 
   // Test the token by introspecting current user
@@ -330,7 +288,7 @@ export class BeatportAPI {
   }
 
   // Make authenticated API requests
-  async makeRequest(endpoint: string) {
+  async makeRequest(endpoint: string): Promise<any> {
     if (!this.accessToken) {
       throw new Error('No access token available. Please authenticate first.');
     }
@@ -348,14 +306,49 @@ export class BeatportAPI {
     return await response.json();
   }
 
-  // Search tracks (example API usage)
-  async searchTracks(query: string) {
-    return await this.makeRequest(`/catalog/search/?q=${encodeURIComponent(query)}&type=tracks`);
+  // Search tracks with enhanced parameters and pagination
+  async searchTracks(params: {
+    query: string;
+    page?: number;
+    per_page?: number;
+    genre?: string;
+    bpm?: string;
+    key?: string;
+    sort?: string;
+  }) {
+    const searchParams = new URLSearchParams({
+      name: params.query, // Use 'name' parameter for track name search
+      per_page: String(params.per_page || 100),
+      page: String(params.page || 1),
+    });
+
+    // Also search by artist name with the same query
+    if (params.query) {
+      searchParams.append('artist_name', params.query);
+    }
+
+    if (params.genre) searchParams.append('genre_name', params.genre);
+    if (params.bpm) searchParams.append('bpm', params.bpm);
+    if (params.key) searchParams.append('key_name', params.key);
+    if (params.sort) searchParams.append('order_by', params.sort);
+
+    return await this.makeRequest(`/catalog/tracks/?${searchParams.toString()}`);
   }
 
   // Search releases (example API usage)
   async searchReleases(query: string) {
-    return await this.makeRequest(`/catalog/search/?q=${encodeURIComponent(query)}&type=releases`);
+    const searchParams = new URLSearchParams({
+      name: query, // Use 'name' parameter for release name search
+      per_page: '100',
+      page: '1',
+    });
+
+    // Also search by artist name with the same query
+    if (query) {
+      searchParams.append('artist_name', query);
+    }
+
+    return await this.makeRequest(`/catalog/releases/?${searchParams.toString()}`);
   }
 
   // Get current access token

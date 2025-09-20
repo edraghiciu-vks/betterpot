@@ -75,7 +75,6 @@ class BeatportApiService {
               // Manually set the access token since we can't call authenticateWithManualToken in browser
               if (this.api && tokenData.access_token) {
                 (this.api as any).accessToken = tokenData.access_token
-                console.log('✅ Loaded token from VITE_BEATPORT_TOKEN environment variable')
               } else {
                 throw new Error('Invalid token format')
               }
@@ -169,25 +168,50 @@ class BeatportApiService {
     }
   }
 
-  async searchTracks(query: string) {
+  async searchTracks(params: {
+    query: string;
+    page?: number;
+    per_page?: number;
+    genre?: string;
+    bpm?: string;
+    key?: string;
+    sort?: string;
+  }) {
     try {
-      await this.ensureAuthenticated()
-      
-      if (!this.api) {
-        throw new ApiError('API not available')
-      }
+      const searchParams = new URLSearchParams({
+        q: params.query,
+        page: String(params.page || 1),
+        per_page: String(params.per_page || 100),
+      });
 
-      return await this.api.searchTracks(query)
+      if (params.genre) searchParams.append('genre', params.genre);
+      if (params.bpm) searchParams.append('bpm', params.bpm);
+      if (params.key) searchParams.append('key', params.key);
+      if (params.sort) searchParams.append('sort', params.sort);
+
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+      const response = await fetch(`${apiUrl}/search/tracks?${searchParams.toString()}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.error || 'Failed to search tracks',
+          response.status,
+          errorData.details || `HTTP ${response.status} ${response.statusText}`
+        );
+      }
+      
+      return await response.json();
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error
+        throw error;
       }
       
       throw new ApiError(
         'Failed to search tracks',
         0,
         error instanceof Error ? error.message : String(error)
-      )
+      );
     }
   }
 

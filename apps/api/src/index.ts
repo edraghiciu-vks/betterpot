@@ -23,7 +23,10 @@ app.get('/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOStri
 
 const port = parseInt(process.env.PORT || '8001')
 
-console.log(`🎵 Beatport API Server starting on port ${port}`)
+// Log startup information in development mode
+if (process.env.NODE_ENV !== 'production') {
+  console.log(`🎵 Beatport API Server starting on port ${port}`)
+}
 
 export default {
   port,
