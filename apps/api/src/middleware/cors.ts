@@ -14,5 +14,15 @@ export const corsMiddleware = cors({
   },
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization']
+  allowHeaders: ['Content-Type', 'Authorization'],
+  exposeHeaders: [
+    'Cross-Origin-Embedder-Policy',
+    'Cross-Origin-Opener-Policy'
+  ]
 })
+
+export const securityHeaders = async (c: any, next: any) => {
+  c.header('Cross-Origin-Embedder-Policy', 'require-corp')
+  c.header('Cross-Origin-Opener-Policy', 'same-origin')
+  await next()
+}

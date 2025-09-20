@@ -1,17 +1,15 @@
 // Bun API Server - Main Entry Point
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
 import { authRoutes } from './routes/auth'
 import { searchRoutes } from './routes/search'
 import { catalogRoutes } from './routes/catalog'
+import { corsMiddleware, securityHeaders } from './middleware/cors'
 
 const app = new Hono()
 
 // Middleware
-app.use('/*', cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
-}))
+app.use('/*', corsMiddleware)
+app.use('/*', securityHeaders)
 
 // Routes
 app.route('/auth', authRoutes)
