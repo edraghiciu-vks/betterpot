@@ -2,6 +2,7 @@ import { createSignal, createResource, Show, For } from 'solid-js';
 import { Button, Input, TracksTable } from '@betterpot/ui-kit';
 import { beatportApiService, ApiError } from '../../services/beatportApi';
 import { usePlayer } from '../../stores/player';
+import { TrackPlayer } from '../WaveSurfer/TrackPlayer';
 import type { SearchTracksResponse, BeatportTrack } from '@betterpot/shared-types';
 
 interface SearchParams {
@@ -14,6 +15,8 @@ export const Search = () => {
   const [searchQuery, setSearchQuery] = createSignal('');
   const [searchParams, setSearchParams] = createSignal<SearchParams | null>(null);
   const [error, setError] = createSignal<string | null>(null);
+  const [enableWaveSurfer, setEnableWaveSurfer] = createSignal(false);
+  const [selectedTrack, setSelectedTrack] = createSignal<BeatportTrack | null>(null);
   
   // Get player context
   const { play } = usePlayer();
@@ -37,8 +40,14 @@ export const Search = () => {
   };
 
   const handlePlayTrack = (beatportTrack: BeatportTrack) => {
-    const playerTrack = convertToPlayerTrack(beatportTrack);
-    play(playerTrack);
+    if (enableWaveSurfer()) {
+      // Set selected track for WaveSurfer player
+      setSelectedTrack(beatportTrack);
+    } else {
+      // Use regular AudioService player
+      const playerTrack = convertToPlayerTrack(beatportTrack);
+      play(playerTrack);
+    }
   };
 
   // Create resource for search results
@@ -131,6 +140,27 @@ export const Search = () => {
           </Button>
         </div>
 
+        {/* WaveSurfer Toggle */}
+        <div class="mb-4">
+          <label class="flex items-center gap-3 text-white cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={enableWaveSurfer()}
+              onChange={(e) => {
+                const target = e.target as HTMLInputElement;
+                setEnableWaveSurfer(target.checked);
+                if (!target.checked) {
+                  setSelectedTrack(null); // Clear selected track when disabling
+                }
+              }}
+              class="rounded"
+            />
+            <span class="text-sm">
+              🌊 Enable WaveSurfer.js visualization (click tracks to test waveform player)
+            </span>
+          </label>
+        </div>
+
         {/* Error Display */}
         <Show when={error()}>
           <div class="mt-4 p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
@@ -142,6 +172,21 @@ export const Search = () => {
 
       {/* Results */}
       <div class="search-results">
+        {/* Selected Track Player (WaveSurfer Mode) */}
+        <Show when={enableWaveSurfer() && selectedTrack()}>
+          <div class="mb-6">
+            <h3 class="text-lg font-medium text-white mb-3">🎵 Track Player Test</h3>
+            <TrackPlayer 
+              track={selectedTrack()!}
+              showWaveform={true}
+              onToggleWaveform={(enabled) => {
+                // Could sync with global toggle if needed
+                console.log('Waveform toggled:', enabled);
+              }}
+            />
+          </div>
+        </Show>
+
         <Show when={searchParams() && !searchResults.loading && !error() && searchResults()?.results.length === 0}>
           <div class="text-center py-12 text-gray-400">
             <div class="text-4xl mb-4">🔍</div>
@@ -151,15 +196,24 @@ export const Search = () => {
         </Show>
 
         <Show when={searchResults() || searchResults.loading}>
-          <TracksTable
-            tracks={searchResults()?.results || []}
-            isLoading={searchResults.loading}
-            currentPage={searchParams()?.page || 1}
-            totalPages={searchResults()?.total_pages || 0}
-            totalTracks={searchResults()?.count || 0}
-            onPageChange={handlePageChange}
-            onPlayTrack={handlePlayTrack}
-          />
+          <div class="mb-4">
+            {enableWaveSurfer() && (
+              <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-3 mb-4 text-blue-200">
+                <p class="text-sm">
+                  <strong>WaveSurfer Mode:</strong> Click any track below to test it with the waveform player above.
+                </p>
+              </div>
+            )}
+            <TracksTable
+              tracks={searchResults()?.results || []}
+              isLoading={searchResults.loading}
+              currentPage={searchParams()?.page || 1}
+              totalPages={searchResults()?.total_pages || 0}
+              totalTracks={searchResults()?.count || 0}
+              onPageChange={handlePageChange}
+              onPlayTrack={handlePlayTrack}
+            />
+          </div>
         </Show>
       </div>
     </div>

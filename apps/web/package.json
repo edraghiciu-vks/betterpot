@@ -16,7 +16,8 @@
     "@betterpot/shared-types": "workspace:*",
     "@betterpot/ui-kit": "workspace:*",
     "@solidjs/router": "^0.10.10",
-    "solid-js": "^1.8.0"
+    "solid-js": "^1.8.0",
+    "wavesurfer.js": "^7.10.1"
   },
   "devDependencies": {
     "@solidjs/testing-library": "^0.8.10",
