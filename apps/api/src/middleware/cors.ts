@@ -10,7 +10,9 @@ export const corsMiddleware = cors({
       process.env.FRONTEND_URL
     ].filter(Boolean)
     
-    return allowedOrigins.includes(origin) || !origin
+    // Return the origin if it's allowed, or null if not
+    if (!origin) return origin // Allow requests with no origin (like mobile apps)
+    return allowedOrigins.includes(origin) ? origin : null
   },
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

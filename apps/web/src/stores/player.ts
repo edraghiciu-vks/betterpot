@@ -8,6 +8,9 @@ export interface Track {
   artists: string[]
   preview_url?: string
   duration: number
+  artwork_url?: string
+  mix_name?: string
+  preview_duration?: number // Preview duration in seconds
 }
 
 export interface PlayerState {
@@ -101,7 +104,7 @@ export function PlayerProvider(props: { children: any }) {
     setError(null)
     setCurrentTrack(track)
     
-    const success = await audioService.loadTrack(track.preview_url)
+    const success = await audioService.loadTrack(track.preview_url, track.preview_duration)
     if (success) {
       audioService.play()
     }
@@ -173,9 +176,9 @@ export function PlayerProvider(props: { children: any }) {
     previous
   }
 
-  return PlayerContext.Provider({ 
-    value: contextValue, 
-    children: props.children
+  return PlayerContext.Provider({
+    value: contextValue,
+    get children() { return props.children }
   })
 }
 

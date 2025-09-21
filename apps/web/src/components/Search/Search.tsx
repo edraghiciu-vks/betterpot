@@ -1,6 +1,7 @@
 import { createSignal, createResource, Show, For } from 'solid-js';
 import { Button, Input, TracksTable } from '@betterpot/ui-kit';
 import { beatportApiService, ApiError } from '../../services/beatportApi';
+import { usePlayer } from '../../stores/player';
 import type { SearchTracksResponse, BeatportTrack } from '@betterpot/shared-types';
 
 interface SearchParams {
@@ -13,6 +14,32 @@ export const Search = () => {
   const [searchQuery, setSearchQuery] = createSignal('');
   const [searchParams, setSearchParams] = createSignal<SearchParams | null>(null);
   const [error, setError] = createSignal<string | null>(null);
+  
+  // Get player context
+  const { play } = usePlayer();
+
+  // Convert BeatportTrack to player Track format
+  const convertToPlayerTrack = (beatportTrack: BeatportTrack) => {
+    // Calculate preview duration from Beatport metadata
+    const previewDurationMs = (beatportTrack.sample_end_ms || 0) - (beatportTrack.sample_start_ms || 0)
+    const previewDurationSeconds = previewDurationMs / 1000
+    
+    return {
+      id: beatportTrack.id.toString(),
+      name: beatportTrack.name,
+      artists: beatportTrack.artists.map(artist => artist.name),
+      preview_url: beatportTrack.sample_url,
+      duration: 0, // Duration will be set by AudioService when track loads
+      artwork_url: beatportTrack.release?.image?.uri,
+      mix_name: beatportTrack.mix_name,
+      preview_duration: previewDurationSeconds > 0 ? previewDurationSeconds : undefined
+    };
+  };
+
+  const handlePlayTrack = (beatportTrack: BeatportTrack) => {
+    const playerTrack = convertToPlayerTrack(beatportTrack);
+    play(playerTrack);
+  };
 
   // Create resource for search results
   const [searchResults] = createResource(
@@ -131,6 +158,7 @@ export const Search = () => {
             totalPages={searchResults()?.total_pages || 0}
             totalTracks={searchResults()?.count || 0}
             onPageChange={handlePageChange}
+            onPlayTrack={handlePlayTrack}
           />
         </Show>
       </div>

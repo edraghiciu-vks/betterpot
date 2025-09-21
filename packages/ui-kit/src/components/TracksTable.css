@@ -1,0 +1,242 @@
+/* TracksTable Component Styles */
+
+.tracks-table-container {
+  width: 100%;
+}
+
+.tracks-table-summary {
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.tracks-table-wrapper {
+  overflow-x: auto;
+  background-color: #1f2937;
+  border-radius: 8px;
+}
+
+.tracks-table {
+  width: 100%;
+  min-width: 800px;
+}
+
+.tracks-table-header {
+  background-color: #374151;
+}
+
+.tracks-table-header th {
+  text-align: left;
+  padding: 12px;
+  font-weight: 500;
+  color: #e5e7eb;
+}
+
+.tracks-table-header .play-column {
+  width: 64px;
+}
+
+.tracks-table-row {
+  transition: background-color 0.2s;
+}
+
+.tracks-table-row:hover {
+  background-color: #374151;
+}
+
+.tracks-table-cell {
+  padding: 12px;
+  border-bottom: 1px solid #374151;
+  color: #d1d5db;
+}
+
+.track-artwork-container {
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.track-artwork-placeholder {
+  width: 40px;
+  height: 40px;
+  background-color: #4b5563;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.track-artwork {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.track-artwork:hover {
+  opacity: 0.8;
+}
+
+.track-artwork-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.track-artwork-overlay:hover {
+  opacity: 1;
+}
+
+.track-artwork-play-button {
+  color: white;
+  font-size: 14px;
+}
+
+.track-name {
+  font-weight: 500;
+  color: white;
+}
+
+.track-mix-name {
+  color: #9ca3af;
+  margin-left: 4px;
+}
+
+.track-duration {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.track-remix {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.track-subgenre {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.track-camelot {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.track-price {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.track-price-amount {
+  font-size: 14px;
+  font-weight: 500;
+  color: #10b981;
+}
+
+.track-buy-link {
+  font-size: 12px;
+  color: #f59e0b;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.track-buy-link:hover {
+  color: #d97706;
+}
+
+.empty-state {
+  padding: 32px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.empty-state-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.empty-state-title {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.empty-state-message {
+  font-size: 14px;
+}
+
+.loading-row {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.loading-placeholder {
+  height: 16px;
+  background-color: #4b5563;
+  border-radius: 4px;
+}
+
+.loading-placeholder-75 {
+  width: 75%;
+}
+
+.loading-placeholder-50 {
+  width: 50%;
+}
+
+.loading-placeholder-33 {
+  width: 33%;
+}
+
+.loading-placeholder-64 {
+  width: 64px;
+}
+
+.loading-placeholder-80 {
+  width: 80px;
+}
+
+.loading-artwork-placeholder {
+  height: 40px;
+  width: 40px;
+  background-color: #4b5563;
+  border-radius: 4px;
+}
+
+/* Pagination Styles */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.pagination-ellipsis {
+  padding: 0 8px;
+  color: #6b7280;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

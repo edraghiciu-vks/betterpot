@@ -1,6 +1,7 @@
 import { JSX, Show, For } from 'solid-js';
 import { Button } from './Button';
 import type { BeatportTrack } from '@betterpot/shared-types';
+import './TracksTable.css';
 
 interface TracksTableProps {
   tracks: BeatportTrack[];
@@ -9,6 +10,7 @@ interface TracksTableProps {
   totalPages: number;
   totalTracks: number;
   onPageChange: (page: number) => void;
+  onPlayTrack?: (track: BeatportTrack) => void;
 }
 
 interface PaginationControlsProps {
@@ -39,7 +41,7 @@ const PaginationControls = (props: PaginationControlsProps) => {
 
   return (
     <Show when={props.totalPages > 1}>
-      <div class="flex items-center justify-center gap-2 mt-4">
+      <div class="pagination-container">
         <Button
           variant="secondary"
           onClick={() => props.onPageChange(1)}
@@ -63,7 +65,7 @@ const PaginationControls = (props: PaginationControlsProps) => {
             1
           </Button>
           <Show when={pages().length > 0 && pages()[0]! > 2}>
-            <span class="px-2 text-gray-500">…</span>
+            <span class="pagination-ellipsis">…</span>
           </Show>
         </Show>
 
@@ -80,7 +82,7 @@ const PaginationControls = (props: PaginationControlsProps) => {
 
         <Show when={pages().length > 0 && pages()[pages().length - 1]! < props.totalPages}>
           <Show when={pages().length > 0 && pages()[pages().length - 1]! < props.totalPages - 1}>
-            <span class="px-2 text-gray-500">…</span>
+            <span class="pagination-ellipsis">…</span>
           </Show>
           <Button variant="ghost" onClick={() => props.onPageChange(props.totalPages)}>
             {props.totalPages}
@@ -110,38 +112,41 @@ const PaginationControls = (props: PaginationControlsProps) => {
 };
 
 const LoadingRow = () => (
-  <tr class="animate-pulse">
-    <td class="p-3 border-b border-gray-700">
-      <div class="h-4 bg-gray-600 rounded w-3/4"></div>
+  <tr class="loading-row">
+    <td class="tracks-table-cell">
+      <div class="loading-artwork-placeholder"></div>
     </td>
-    <td class="p-3 border-b border-gray-700">
-      <div class="h-4 bg-gray-600 rounded w-1/2"></div>
+    <td class="tracks-table-cell">
+      <div class="loading-placeholder loading-placeholder-75"></div>
     </td>
-    <td class="p-3 border-b border-gray-700">
-      <div class="h-4 bg-gray-600 rounded w-1/2"></div>
+    <td class="tracks-table-cell">
+      <div class="loading-placeholder loading-placeholder-50"></div>
     </td>
-    <td class="p-3 border-b border-gray-700">
-      <div class="h-4 bg-gray-600 rounded w-1/3"></div>
+    <td class="tracks-table-cell">
+      <div class="loading-placeholder loading-placeholder-50"></div>
     </td>
-    <td class="p-3 border-b border-gray-700">
-      <div class="h-4 bg-gray-600 rounded w-16"></div>
+    <td class="tracks-table-cell">
+      <div class="loading-placeholder loading-placeholder-33"></div>
     </td>
-    <td class="p-3 border-b border-gray-700">
-      <div class="h-4 bg-gray-600 rounded w-16"></div>
+    <td class="tracks-table-cell">
+      <div class="loading-placeholder loading-placeholder-64"></div>
     </td>
-    <td class="p-3 border-b border-gray-700">
-      <div class="h-4 bg-gray-600 rounded w-20"></div>
+    <td class="tracks-table-cell">
+      <div class="loading-placeholder loading-placeholder-64"></div>
+    </td>
+    <td class="tracks-table-cell">
+      <div class="loading-placeholder loading-placeholder-80"></div>
     </td>
   </tr>
 );
 
 const EmptyState = () => (
   <tr>
-    <td colSpan={7} class="p-8 text-center text-gray-400">
-      <div class="flex flex-col items-center">
-        <div class="text-4xl mb-2">🎵</div>
-        <p class="text-lg font-medium">No tracks found</p>
-        <p class="text-sm">Try adjusting your search criteria</p>
+    <td colSpan={8} class="empty-state">
+      <div>
+        <div class="empty-state-icon">🎵</div>
+        <p class="empty-state-title">No tracks found</p>
+        <p class="empty-state-message">Try adjusting your search criteria</p>
       </div>
     </td>
   </tr>
@@ -164,26 +169,27 @@ export const TracksTable = (props: TracksTableProps) => {
   };
 
   return (
-    <div class="w-full">
+    <div class="tracks-table-container">
       {/* Results summary */}
       <Show when={!props.isLoading && props.tracks.length > 0}>
-        <div class="mb-4 text-sm text-gray-400">
+        <div class="tracks-table-summary">
           Showing {((props.currentPage - 1) * props.tracks.length) + 1} to {(props.currentPage - 1) * props.tracks.length + props.tracks.length} of {props.totalTracks} tracks
         </div>
       </Show>
 
       {/* Table */}
-      <div class="overflow-x-auto bg-gray-800 rounded-lg">
-        <table class="w-full min-w-[800px]">
-          <thead class="bg-gray-700">
+      <div class="tracks-table-wrapper">
+        <table class="tracks-table">
+          <thead class="tracks-table-header">
             <tr>
-              <th class="text-left p-3 font-medium text-gray-200">Track</th>
-              <th class="text-left p-3 font-medium text-gray-200">Artist</th>
-              <th class="text-left p-3 font-medium text-gray-200">Label</th>
-              <th class="text-left p-3 font-medium text-gray-200">Genre</th>
-              <th class="text-left p-3 font-medium text-gray-200">BPM</th>
-              <th class="text-left p-3 font-medium text-gray-200">Key</th>
-              <th class="text-left p-3 font-medium text-gray-200">Purchase</th>
+              <th class="play-column">Play</th>
+              <th>Track</th>
+              <th>Artist</th>
+              <th>Label</th>
+              <th>Genre</th>
+              <th>BPM</th>
+              <th>Key</th>
+              <th>Purchase</th>
             </tr>
           </thead>
           <tbody>
@@ -200,60 +206,87 @@ export const TracksTable = (props: TracksTableProps) => {
             <Show when={!props.isLoading}>
               <For each={props.tracks}>
                 {(track) => (
-                  <tr class="hover:bg-gray-700 transition-colors">
-                    <td class="p-3 border-b border-gray-700">
+                  <tr class="tracks-table-row">
+                    <td class="tracks-table-cell">
+                      <div class="track-artwork-container">
+                        <Show 
+                          when={track.release?.image?.uri} 
+                          fallback={
+                            <div class="track-artwork-placeholder">
+                              🎵
+                            </div>
+                          }
+                        >
+                          <img
+                            src={track.release!.image!.uri}
+                            alt={`${track.name} artwork`}
+                            class="track-artwork"
+                            onClick={() => props.onPlayTrack?.(track)}
+                            title={`Play "${track.name}"`}
+                            loading="lazy"
+                          />
+                          <div 
+                            class="track-artwork-overlay"
+                            onClick={() => props.onPlayTrack?.(track)}
+                          >
+                            <span class="track-artwork-play-button">▶️</span>
+                          </div>
+                        </Show>
+                      </div>
+                    </td>
+                    <td class="tracks-table-cell">
                       <div>
-                        <div class="font-medium text-white">
+                        <div class="track-name">
                           {track.name}
                           <Show when={track.mix_name}>
-                            <span class="text-gray-400 ml-1">({track.mix_name})</span>
+                            <span class="track-mix-name">({track.mix_name})</span>
                           </Show>
                         </div>
-                        <div class="text-xs text-gray-400 mt-1">
+                        <div class="track-duration">
                           {track.length || formatDuration(track.length_ms)}
                         </div>
                       </div>
                     </td>
-                    <td class="p-3 border-b border-gray-700 text-gray-300">
+                    <td class="tracks-table-cell">
                       {formatArtists(track.artists)}
                       <Show when={track.remixers && track.remixers.length > 0}>
-                        <div class="text-xs text-gray-500 mt-1">
+                        <div class="track-remix">
                           Remix: {formatArtists(track.remixers!)}
                         </div>
                       </Show>
                     </td>
-                    <td class="p-3 border-b border-gray-700 text-gray-300">
+                    <td class="tracks-table-cell">
                       {track.release.label.name}
                     </td>
-                    <td class="p-3 border-b border-gray-700 text-gray-300">
+                    <td class="tracks-table-cell">
                       {track.genre.name}
                       <Show when={track.sub_genre}>
-                        <div class="text-xs text-gray-500 mt-1">
+                        <div class="track-subgenre">
                           {track.sub_genre!.name}
                         </div>
                       </Show>
                     </td>
-                    <td class="p-3 border-b border-gray-700 text-gray-300">
+                    <td class="tracks-table-cell">
                       {track.bpm || '—'}
                     </td>
-                    <td class="p-3 border-b border-gray-700 text-gray-300">
+                    <td class="tracks-table-cell">
                       {track.key?.name || '—'}
                       <Show when={track.key?.camelot_number}>
-                        <div class="text-xs text-gray-500 mt-1">
+                        <div class="track-camelot">
                           {track.key!.camelot_number}{track.key!.camelot_letter}
                         </div>
                       </Show>
                     </td>
-                    <td class="p-3 border-b border-gray-700">
-                      <div class="flex flex-col gap-1">
-                        <div class="text-sm font-medium text-green-400">
+                    <td class="tracks-table-cell">
+                      <div class="track-price">
+                        <div class="track-price-amount">
                           {track.price.display}
                         </div>
                         <a
                           href={getBeatportUrl(track)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          class="text-xs text-orange-400 hover:text-orange-300 transition-colors"
+                          class="track-buy-link"
                         >
                           Buy on Beatport →
                         </a>
