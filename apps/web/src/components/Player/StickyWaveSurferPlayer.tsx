@@ -128,30 +128,9 @@ export const StickyWaveSurferPlayer = () => {
               <WaveSurferWrapper
                 url={state.currentTrack!.preview_url}
                 plugins={{
-                  timeline: true,
+                  timeline: false,
                   minimap: true,
-                  spectrogram: {
-                    height: 80,
-                    fftSamples: 1024,
-                    labels: true,
-                    colorMap: 'roseus',
-                    windowFunc: 'hann',
-                    scale: 'mel',
-                    splitChannels: false,
-                    gainDB: 30,
-                    rangeDB: 70
-                  }
-                }}
-                frequencyColors={{
-                  enabled: true,
-                  strategy: 'energy',
-                  bassColor: '#ff4444', // Red for bass/low energy
-                  midsColor: '#44ff44', // Green for mids
-                  trebleColor: '#4444ff', // Blue for treble/high energy  
-                  lowEnergyColor: '#2a2a4a', // Dark purple for low energy
-                  highEnergyColor: '#ffd700', // Gold for high energy
-                  defaultColor: '#4F4A85',
-                  smoothing: 0.85
+                  spectrogram: false
                 }}
                 options={{
                   height: 80,
