@@ -338,3 +338,87 @@
     border-bottom-color: #334155;
   }
 }
+
+/* Placeholder styles */
+.sticky-player__placeholder {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sticky-player__placeholder-artwork {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.sticky-player__track-name.placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+.sticky-player__artists.placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+.sticky-player__placeholder-waveform {
+  position: relative;
+  flex: 1;
+  height: 90px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.sticky-player__placeholder-wave {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.3;
+  filter: blur(1px);
+}
+
+.placeholder-bars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+  padding: 8px;
+}
+
+.placeholder-bar {
+  width: 3px;
+  background: #4F4A85;
+  border-radius: 1px;
+  opacity: 0.4;
+}
+
+.sticky-player__placeholder-text {
+  position: relative;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}

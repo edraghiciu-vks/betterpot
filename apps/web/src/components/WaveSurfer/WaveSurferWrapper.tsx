@@ -4,6 +4,9 @@
 import { createSignal, onMount, onCleanup, createEffect, type JSXElement } from 'solid-js'
 import WaveSurfer from 'wavesurfer.js'
 import type { WaveSurferOptions } from 'wavesurfer.js'
+import { useFrequencyAnalysis, type UseFrequencyAnalysisOptions } from '../../services/useFrequencyAnalysis'
+import { usePreAnalyzedFrequency, type UsePreAnalyzedFrequencyOptions } from '../../services/usePreAnalyzedFrequency'
+import { createSimpleFrequencyRenderer, createPreAnalyzedFrequencyRenderer } from '../../services/audioVisualization'
 
 export interface WaveSurferControls {
   play: () => Promise<void> | undefined
@@ -16,6 +19,11 @@ export interface WaveSurferControls {
   getDuration: () => number
   isPlaying: () => boolean
   getWaveSurfer: () => WaveSurfer | null
+  // Frequency analysis controls (available when enabled)
+  getFrequencyData?: () => import('../../services/audioAnalysis').FrequencyData | null
+  getCurrentColor?: () => string
+  getCurrentHexColor?: () => string
+  toggleFrequencyAnalysis?: () => void
 }
 
 export interface WaveSurferState {
@@ -31,6 +39,14 @@ export interface WaveSurferWrapperProps {
   options?: Partial<WaveSurferOptions>
   /** Enable/disable interaction */
   interact?: boolean
+  /** Enable frequency analysis for color coding */
+  enableFrequencyAnalysis?: boolean
+  /** Frequency analysis mode: 'realtime' | 'preanalyzed' */
+  frequencyAnalysisMode?: 'realtime' | 'preanalyzed'
+  /** Frequency analysis options */
+  frequencyAnalysisOptions?: UseFrequencyAnalysisOptions
+  /** Pre-analyzed frequency options */
+  preAnalyzedFrequencyOptions?: UsePreAnalyzedFrequencyOptions
   /** Loading state callback */
   onLoading?: (loading: boolean) => void
   /** Ready state callback */
@@ -59,6 +75,15 @@ export const WaveSurferWrapper = (props: WaveSurferWrapperProps) => {
 
   let containerRef: HTMLDivElement | undefined
 
+  // Initialize frequency analysis based on mode
+  const frequencyAnalysis = props.enableFrequencyAnalysis && props.frequencyAnalysisMode === 'realtime'
+    ? useFrequencyAnalysis(wavesurfer, props.frequencyAnalysisOptions)
+    : null
+
+  const preAnalyzedFrequency = props.enableFrequencyAnalysis && props.frequencyAnalysisMode === 'preanalyzed'
+    ? usePreAnalyzedFrequency(() => props.url, props.preAnalyzedFrequencyOptions)
+    : null
+
   // Default options with sensible defaults for music tracks
   const defaultOptions: Partial<WaveSurferOptions> = {
     waveColor: '#4F4A85',
@@ -77,11 +102,36 @@ export const WaveSurferWrapper = (props: WaveSurferWrapperProps) => {
     if (!containerRef) return
 
     try {
+      // Prepare options with custom renderer if frequency analysis is enabled
+      let renderFunction: ((peaks: Array<Float32Array | number[]>, ctx: CanvasRenderingContext2D) => void) | undefined
+      
+      if (props.enableFrequencyAnalysis) {
+        if (props.frequencyAnalysisMode === 'preanalyzed' && preAnalyzedFrequency) {
+          // Use pre-analyzed renderer for individual bar coloring (Serato style)
+          renderFunction = createPreAnalyzedFrequencyRenderer({
+            preAnalyzer: preAnalyzedFrequency.preAnalyzer,
+            defaultWaveColor: props.options?.waveColor as string || '#4F4A85',
+            duration: 30 // Will be updated when audio loads
+          })
+        } else if (props.frequencyAnalysisMode === 'realtime' && frequencyAnalysis) {
+          // Use real-time renderer for overall waveform coloring
+          renderFunction = createSimpleFrequencyRenderer({
+            colorMapper: frequencyAnalysis.colorMapper,
+            getFrequencyData: () => frequencyAnalysis.state().frequencyData,
+            defaultWaveColor: props.options?.waveColor as string || '#4F4A85',
+            defaultProgressColor: props.options?.progressColor as string || '#383351',
+            smoothTransitions: true,
+            updateInterval: 50
+          })
+        }
+      }
+
       // Merge default options with user options
       const options: WaveSurferOptions = {
         container: containerRef,
         ...defaultOptions,
         ...props.options,
+        ...(renderFunction && { renderFunction })
       }
 
       const ws = WaveSurfer.create(options)
@@ -98,6 +148,26 @@ export const WaveSurferWrapper = (props: WaveSurferWrapperProps) => {
         setIsReady(true)
         setIsLoading(false)
         setError(null)
+        
+        // Update pre-analyzed renderer with correct duration
+        if (props.enableFrequencyAnalysis && props.frequencyAnalysisMode === 'preanalyzed' && preAnalyzedFrequency) {
+          const newRenderFunction = createPreAnalyzedFrequencyRenderer({
+            preAnalyzer: preAnalyzedFrequency.preAnalyzer,
+            defaultWaveColor: props.options?.waveColor as string || '#4F4A85',
+            duration: duration
+          })
+          
+          // Update the renderer with correct duration
+          ws.setOptions({ renderFunction: newRenderFunction })
+          
+          // Force re-render to apply new colors
+          setTimeout(() => {
+            // Trigger redraw by toggling a minor option
+            const currentHeight = ws.getWrapper().clientHeight
+            ws.setOptions({ height: currentHeight })
+          }, 100)
+        }
+        
         props.onReady?.(duration)
       })
 
@@ -175,6 +245,14 @@ export const WaveSurferWrapper = (props: WaveSurferWrapperProps) => {
     getDuration: () => wavesurfer()?.getDuration() ?? 0,
     isPlaying: () => wavesurfer()?.isPlaying() ?? false,
     getWaveSurfer: () => wavesurfer(),
+    
+    // Frequency analysis methods (only available when enabled)
+    ...(frequencyAnalysis && {
+      getFrequencyData: () => frequencyAnalysis.state().frequencyData,
+      getCurrentColor: () => frequencyAnalysis.getCurrentColor(),
+      getCurrentHexColor: () => frequencyAnalysis.getCurrentHexColor(),
+      toggleFrequencyAnalysis: () => frequencyAnalysis.toggleAnalysis()
+    })
   }
 
   return (
