@@ -33,7 +33,6 @@ export const StickyWaveSurferPlayer = () => {
     const controls = wsControls()
     if (controls && wsReady() && zoomLevel() === 3) {
       // Apply the initial zoom level of 3
-      console.log('Applying initial zoom level:', zoomLevel())
       controls.zoom(zoomLevel() * 20)
     }
   })
@@ -45,7 +44,6 @@ export const StickyWaveSurferPlayer = () => {
       // Small delay to ensure WaveSurfer is fully ready
       setTimeout(() => {
         controls.play()
-        console.log('Auto-playing new track:', state.currentTrack?.name)
       }, 100)
     }
   })
@@ -194,7 +192,6 @@ export const StickyWaveSurferPlayer = () => {
                             if (zoomLevel() > 0.5) {
                               const newZoom = Math.max(0.5, zoomLevel() - 0.5)
                               setZoomLevel(newZoom)
-                              console.log('Zooming out to:', newZoom)
                               controls.zoom(newZoom * 20) // Use native zoom method
                             }
                           }}
@@ -211,7 +208,6 @@ export const StickyWaveSurferPlayer = () => {
                           onClick={() => {
                             if (zoomLevel() < 3) {
                               const newZoom = Math.min(3, zoomLevel() + 0.5)
-                              console.log('Zooming in to:', newZoom)
                               setZoomLevel(newZoom)
                               controls.zoom(newZoom * 20) // Use native zoom method
                             }

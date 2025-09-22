@@ -102,7 +102,6 @@ export interface WaveSurferWrapperProps {
   containerStyle?: Record<string, string>
   // Children as render prop or regular JSX
   children?: JSXElement | ((controls: WaveSurferControls, state: WaveSurferState) => JSXElement)
-  mediaControls?: boolean // Enable media controls
 }
 
 export const WaveSurferWrapper = (props: WaveSurferWrapperProps) => {

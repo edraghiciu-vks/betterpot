@@ -6,7 +6,7 @@
     "dev": "bun --env-file=../../.env --watch src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
     "start": "bun --env-file=../../.env dist/index.js",
-    "test": "echo 'No tests yet for API'",
+    "test": "bun test",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

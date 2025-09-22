@@ -67,7 +67,6 @@ search.get('/tracks', async (c) => {
 
     return c.json(response)
   } catch (error) {
-    console.error('Search tracks error:', error)
     return c.json({ 
       error: 'Failed to search tracks', 
       details: error instanceof Error ? error.message : 'Unknown error' 

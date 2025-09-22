@@ -54,8 +54,6 @@ export const Search = () => {
         });
         return response;
       } catch (err) {
-        console.error('Search error:', err);
-        
         let errorMessage = 'Failed to search tracks. Please try again.';
         if (err instanceof ApiError) {
           errorMessage = err.message;
