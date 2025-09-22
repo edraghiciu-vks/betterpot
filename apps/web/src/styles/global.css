@@ -8,54 +8,21 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
 }
 
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-header {
-  background: #1a1a1a;
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #333;
-}
-
-header h1 {
-  color: #ff6b35;
-  font-size: 1.5rem;
-}
-
-nav {
-  display: flex;
-  gap: 2rem;
-}
-
-nav a {
-  color: #ccc;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background 0.2s;
-}
-
-nav a:hover {
-  background: #333;
-  color: #fff;
-}
-
-nav a.active {
-  background: #ff6b35;
-  color: #fff;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
 .main-content {
   flex: 1;
   padding: 2rem;
+  color: white;
 }
 
 .page-container {
@@ -64,40 +31,15 @@ nav a.active {
   padding: 0 1rem;
 }
 
-.player {
-  background: #1a1a1a;
-  padding: 1rem 2rem;
-  border-top: 1px solid #333;
-  display: flex;
-  align-items: center;
-  gap: 2rem;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
 }
 
-.player-controls {
-  display: flex;
-  gap: 1rem;
-}
-
-.player-controls button {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: background 0.2s;
-}
-
-.player-controls button:hover {
-  background: #333;
-}
-
-.track-info {
-  flex: 1;
-  text-align: center;
-}
-
-.volume-control input {
-  width: 100px;
+@media (max-width: 480px) {
+  .main-content {
+    padding: 0.75rem;
+  }
 }

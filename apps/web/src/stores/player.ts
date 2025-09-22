@@ -1,6 +1,5 @@
-// Player store - Audio player state management
+// Player store - WaveSurfer-based audio player state management
 import { createContext, useContext, createSignal, createEffect, onCleanup } from 'solid-js'
-import { AudioService, type AudioServiceCallbacks } from '../services/audioService'
 
 export interface Track {
   id: string
@@ -42,9 +41,6 @@ interface PlayerContextType {
 const PlayerContext = createContext<PlayerContextType>()
 
 export function PlayerProvider(props: { children: any }) {
-  // Create audio service instance
-  const audioService = new AudioService()
-
   // State signals
   const [currentTrack, setCurrentTrack] = createSignal<Track | null>(null)
   const [isPlaying, setIsPlaying] = createSignal(false)
@@ -55,33 +51,6 @@ export function PlayerProvider(props: { children: any }) {
   const [error, setError] = createSignal<string | null>(null)
   const [queue, setQueue] = createSignal<Track[]>([])
   const [currentIndex, setCurrentIndex] = createSignal(0)
-
-  // Set up audio service callbacks
-  createEffect(() => {
-    const callbacks: AudioServiceCallbacks = {
-      onTimeUpdate: (time: number) => setCurrentTime(time),
-      onDurationChange: (dur: number) => setDuration(dur),
-      onLoadStart: () => setLoading(true),
-      onLoadComplete: () => setLoading(false),
-      onLoadError: (err: string) => {
-        setError(err)
-        setLoading(false)
-      },
-      onPlayStateChange: (playing: boolean) => setIsPlaying(playing),
-      onVolumeChange: (vol: number) => setVolumeSignal(vol),
-      onTrackEnd: () => {
-        // Auto-play next track if in queue
-        next()
-      }
-    }
-
-    audioService.setCallbacks(callbacks)
-  })
-
-  // Cleanup on unmount
-  onCleanup(() => {
-    audioService.destroy()
-  })
 
   const state: PlayerState = {
     get currentTrack() { return currentTrack() },
@@ -103,41 +72,52 @@ export function PlayerProvider(props: { children: any }) {
 
     setError(null)
     setCurrentTrack(track)
+    setLoading(true)
     
-    const success = await audioService.loadTrack(track.preview_url, track.preview_duration)
-    if (success) {
-      audioService.play()
-    }
+    // WaveSurfer will handle the actual audio loading and playback
+    // The StickyWaveSurferPlayer component will manage the WaveSurfer instance
   }
 
   const pause = () => {
-    audioService.pause()
+    setIsPlaying(false)
+    // WaveSurfer pause will be handled by the player component
   }
 
   const resume = () => {
-    audioService.play()
+    setIsPlaying(true)
+    // WaveSurfer play will be handled by the player component
   }
 
   const stop = () => {
-    audioService.stop()
     setCurrentTrack(null)
+    setIsPlaying(false)
+    setCurrentTime(0)
+    setDuration(0)
+    setError(null)
+    // WaveSurfer stop will be handled by the player component
   }
 
   const seek = (time: number) => {
-    audioService.seek(time)
+    setCurrentTime(time)
+    // WaveSurfer seek will be handled by the player component
   }
 
   const setVolume = (vol: number) => {
     const clampedVol = Math.max(0, Math.min(1, vol))
-    audioService.setVolume(clampedVol)
+    setVolumeSignal(clampedVol)
+    // WaveSurfer volume will be handled by the player component
   }
 
   const skipForward = (seconds: number = 10) => {
-    audioService.skipForward(seconds)
+    const newTime = Math.min(currentTime() + seconds, duration())
+    setCurrentTime(newTime)
+    // WaveSurfer seek will be handled by the player component
   }
 
   const skipBackward = (seconds: number = 10) => {
-    audioService.skipBackward(seconds)
+    const newTime = Math.max(currentTime() - seconds, 0)
+    setCurrentTime(newTime)
+    // WaveSurfer seek will be handled by the player component
   }
 
   const next = () => {

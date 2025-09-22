@@ -315,6 +315,7 @@ export class BeatportAPI {
     bpm?: string;
     key?: string;
     sort?: string;
+    artist?: string;
   }) {
     const searchParams = new URLSearchParams({
       name: params.query, // Use 'name' parameter for track name search
@@ -323,8 +324,8 @@ export class BeatportAPI {
     });
 
     // Also search by artist name with the same query
-    if (params.query) {
-      searchParams.append('artist_name', params.query);
+    if (params.artist) {
+      searchParams.append('artist_name', params.artist);
     }
 
     if (params.genre) searchParams.append('genre_name', params.genre);

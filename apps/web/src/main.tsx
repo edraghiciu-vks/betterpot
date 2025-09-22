@@ -6,7 +6,7 @@ import { LibraryProvider } from './stores/library'
 
 // Layout Components
 import { Header } from './components/Layout/Header'
-import { Player } from './components/Player/Player'
+import { StickyWaveSurferPlayer } from './components/Player/StickyWaveSurferPlayer'
 import { ErrorDialog } from './components/ErrorDialog'
 
 // Page Components
@@ -47,13 +47,13 @@ const App = (props: any) => {
             {/* Header stays on all pages */}
             <Header />
             
+            {/* Sticky WaveSurfer player appears below header when track is playing */}
+            <StickyWaveSurferPlayer />
+            
             {/* Main content area - changes based on route */}
             <main class="main-content">
               {props.children}
             </main>
-            
-            {/* Player footer stays on all pages */}
-            <Player />
             
             {/* Global error dialog - inside AuthProvider context */}
             <AppErrorDialog />

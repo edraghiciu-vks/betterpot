@@ -64,12 +64,12 @@ export const WaveSurferWrapper = (props: WaveSurferWrapperProps) => {
     waveColor: '#4F4A85',
     progressColor: '#383351', 
     cursorColor: '#ff6b6b',
-    barWidth: 2,
-    barGap: 1,
+    barWidth: 3,
+    barGap: 0.5,
     barRadius: 2,
-    height: 60,
+    height: 80,
     interact: props.interact ?? true,
-    normalize: false,
+    normalize: true,
     fillParent: true,
   }
 
