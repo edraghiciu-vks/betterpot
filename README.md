@@ -1,8 +1,8 @@
-# 🎵 Betterpot - Ultra-Fast Music Player# Betterpot - Beatport API Client
+# 🎵 Betterpot - Ultra-Fast audio player with Beatport support
 
 
 
-A modern, high-performance music player built with **SolidJS** and **Bun**, powered by the Beatport API.A TypeScript/Bun client for the Beatport API v4 that **doesn't require Python or official API credentials!**
+A modern, high-performance music player powered by the Beatport API powered by a custom built TypeScript/Bun client for the Beatport API v4 
 
 
 
@@ -10,129 +10,36 @@ A modern, high-performance music player built with **SolidJS** and **Bun**, powe
 
 
 
-This project is organized as a monorepo with clear separation of concerns:This client replicates the approach used by the `beets-beatport4` plugin:
-
-- **Scrapes the public `client_id`** from Beatport's own Swagger UI documentation
-
-```- **Uses standard OAuth2 flows** with the scraped credentials
-
-betterpot/- **Pure TypeScript/Bun** - no Python dependencies needed!
-
-├── 📁 apps/                          # Applications
-
-│   ├── 📁 api/                       # Bun backend API server## 🚀 Quick Start
-
-│   │   ├── src/
-
-│   │   │   ├── routes/               # API endpoints1. **Install Dependencies** (already done):
-
-│   │   │   ├── middleware/           # CORS, caching, auth   ```bash
-
-│   │   │   └── index.ts              # Server entry point   bun install
-
-│   │   └── package.json   ```
-
-│   │
-
-│   └── 📁 web/                       # SolidJS frontend2. **Configure Authentication** - Choose one method:
-
-│       ├── src/
-
-│       │   ├── components/           # UI components### Method 1: Username/Password (Recommended)
-
-│       │   ├── stores/               # State management```bash
-
-│       │   ├── services/             # Audio & API servicescp .env.example .env
-
-│       │   └── App.tsx               # Main app component# Edit .env with your Beatport username/password
-
-│       ├── public/```
-
-│       └── package.json
-
-│### Method 2: Manual Token
-
-├── 📁 packages/                      # Shared librariesIf Method 1 doesn't work, you can manually extract a token:
-
-│   ├── 📁 betterpot-client/          # Beatport API client1. Visit [Beatport API Docs](https://api.beatport.com/v4/docs/)
-
-│   │   ├── src/2. Open browser dev tools → Network tab
-
-│   │   │   ├── api.ts                # BeatportAPI class3. Login with your Beatport account
-
-│   │   │   ├── token-manager.ts      # TokenManager class4. Find the `/auth/o/token/` request and copy the JSON response
-
-│   │   │   └── types.ts              # API types5. Add to `.env`: `BEATPORT_TOKEN={"access_token":"...","expires_in":36000}`
-
-│   │   └── tests/                    # Test suite (46/46 passing!)
-
-│   │3. **Run the Client**:
-
-│   ├── 📁 shared-types/              # TypeScript definitions   ```bash
-
-│   │   └── src/   bun start
-
-│   │       ├── api.ts                # API types   # or
-
-│   │       ├── player.ts             # Audio player types   bun run index.ts
-
-│   │       └── beatport.ts           # Beatport entity types   ```
-
-│   │
-
-│   └── 📁 ui-kit/                    # Reusable UI components## 🔧 Features
-
-│       └── src/
-
-│           ├── components/           # Button, Input, etc.- ✅ **Automatic client_id scraping** from Beatport's docs
-
-│           └── styles/               # CSS modules- ✅ **Username/password authentication** (like beets Method 1)
-
-│- ✅ **Manual token authentication** (like beets Method 2)
-
-├── package.json                      # Root workspace config- ✅ **Token persistence** - saves tokens to file, reuses valid tokens
-
-├── turbo.json                        # Turborepo configuration- ✅ **Token introspection** and validation
-
-└── README.md                         # This file- ✅ **Search tracks and releases**
-
-```- ✅ **Ready for your React/Astro frontend**
-
-
+This project is organized as a monorepo with clear separation of concerns. 
+_
 
 ## 🚀 Tech Stack## 🏗️ Architecture
 
 
 
-### Frontend (Ultra-Fast SolidJS)```
+### Frontend``
+- **SolidJS** 
 
-- **SolidJS** - No virtual DOM, fine-grained reactivityFrontend: React/Astro + TypeScript  
+- **Vite**
 
-- **Vite** - Lightning-fast dev server with HMRBackend: Bun + TypeScript           ← You are here
+- **TypeScript** - Full type safetyAPI: Beatport v4
 
-- **TypeScript** - Full type safetyAPI: Beatport v4 (using scraped client_id)
+- **Web Audio API**
 
-- **Howler.js** - Professional audio playback```
+### Backend
 
-- **Web Audio API** - Advanced audio features
+- **Bun**
 
-No Python required! This approach gives you the same API access as the beets plugin but in pure TypeScript.
+- **Hono**
 
-### Backend (High-Performance Bun)
-
-- **Bun** - 3x faster than Node.js runtime## 🔑 Authentication Methods
-
-- **Hono** - Lightweight web framework
-
-- **TypeScript** - Shared types with frontend1. **Automatic Client ID Scraping**: Fetches the public `client_id` that Beatport uses for their documentation
-
-- **Stateless JWT** - No database required2. **Username/Password Flow**: Uses OAuth2 authorization_code grant type
+- **TypeScript** - Shared types with frontend
+- **Automatic Client ID Scraping**: Fetches the public `client_id` that Beatport uses for their documentation
 
 3. **Manual Token Fallback**: Direct token input for troubleshooting
 
 ### Development Tools
 
-- **Turborepo** - Parallel builds and caching## 💡 Why This Works
+- **Turborepo** - Parallel builds and caching##
 
 - **TypeScript Project References** - Incremental compilation
 
