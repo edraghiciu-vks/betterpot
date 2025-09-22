@@ -30,12 +30,11 @@ export const StickyWaveSurferPlayer = () => {
 
   // Apply initial zoom when WaveSurfer is ready
   createEffect(() => {
-    const ws = wsControls()?.getWaveSurfer()
-    if (ws && wsReady() && zoomLevel() === 3) {
+    const controls = wsControls()
+    if (controls && wsReady() && zoomLevel() === 3) {
       // Apply the initial zoom level of 3
       console.log('Applying initial zoom level:', zoomLevel())
-      console.log('wsZoom:', zoomLevel() * 20)
-      ws.zoom(zoomLevel() * 20)
+      controls.zoom(zoomLevel() * 20)
     }
   })
 
@@ -128,23 +127,35 @@ export const StickyWaveSurferPlayer = () => {
             >
               <WaveSurferWrapper
                 url={state.currentTrack!.preview_url}
-                enableFrequencyAnalysis={true}
-                frequencyAnalysisMode="preanalyzed"
-                preAnalyzedFrequencyOptions={{
-                  autoAnalyze: true,
-                  onAnalysisComplete: () => {
-                    // Force re-render when analysis completes
-                    const ws = wsControls()?.getWaveSurfer()
-                    if (ws) {
-                      const currentHeight = ws.getWrapper().clientHeight
-                      ws.setOptions({ height: currentHeight })
-                    }
+                plugins={{
+                  timeline: true,
+                  minimap: true,
+                  spectrogram: {
+                    height: 80,
+                    fftSamples: 1024,
+                    labels: true,
+                    colorMap: 'roseus',
+                    windowFunc: 'hann',
+                    scale: 'mel',
+                    splitChannels: false,
+                    gainDB: 30,
+                    rangeDB: 70
                   }
+                }}
+                frequencyColors={{
+                  enabled: true,
+                  strategy: 'energy',
+                  bassColor: '#ff4444', // Red for bass/low energy
+                  midsColor: '#44ff44', // Green for mids
+                  trebleColor: '#4444ff', // Blue for treble/high energy  
+                  lowEnergyColor: '#2a2a4a', // Dark purple for low energy
+                  highEnergyColor: '#ffd700', // Gold for high energy
+                  defaultColor: '#4F4A85',
+                  smoothing: 0.85
                 }}
                 options={{
                   height: 80,
                   waveColor: '#4F4A85',
-                  progressColor: '#6366f1',
                   cursorColor: '#f59e0b',
                   barWidth: 3,
                   barGap: 0.5,
@@ -201,13 +212,11 @@ export const StickyWaveSurferPlayer = () => {
                       <div class="sticky-player__zoom-controls">
                         <button
                           onClick={() => {
-                            const ws = controls.getWaveSurfer()
-                            if (ws && zoomLevel() > 0.5) {
+                            if (zoomLevel() > 0.5) {
                               const newZoom = Math.max(0.5, zoomLevel() - 0.5)
                               setZoomLevel(newZoom)
                               console.log('Zooming out to:', newZoom)
-                              console.log('wsZoom:', newZoom * 20)
-                              ws.zoom(newZoom * 20) // Reduced multiplier to prevent width issues
+                              controls.zoom(newZoom * 20) // Use native zoom method
                             }
                           }}
                           disabled={wsState.isLoading || !!wsState.error || zoomLevel() <= 0.5}
@@ -221,13 +230,11 @@ export const StickyWaveSurferPlayer = () => {
                         </span>
                         <button 
                           onClick={() => {
-                            const ws = controls.getWaveSurfer()
-                            if (ws && zoomLevel() < 3) {
+                            if (zoomLevel() < 3) {
                               const newZoom = Math.min(3, zoomLevel() + 0.5)
                               console.log('Zooming in to:', newZoom)
-                              console.log('wsZoom:', newZoom * 20)
                               setZoomLevel(newZoom)
-                              ws.zoom(newZoom * 20) // Reduced multiplier and max zoom to prevent width issues
+                              controls.zoom(newZoom * 20) // Use native zoom method
                             }
                           }}
                           disabled={wsState.isLoading || !!wsState.error || zoomLevel() >= 3}
