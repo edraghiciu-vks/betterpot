@@ -61,7 +61,7 @@ export interface BeatportArtist {
   biography?: string;
   facebook_url?: string;
   twitter_url?: string;
-  soundcloud_url?: string;
+  betterpot_url?: string;
   instagram_url?: string;
   spotify_url?: string;
   beatport_url?: string;
@@ -97,7 +97,7 @@ export interface BeatportLabel {
   website_url?: string;
   facebook_url?: string;
   twitter_url?: string;
-  soundcloud_url?: string;
+  betterpot_url?: string;
   instagram_url?: string;
   spotify_url?: string;
   beatport_url?: string;
@@ -166,7 +166,7 @@ export interface BeatportUser {
   website_url?: string;
   facebook_url?: string;
   twitter_url?: string;
-  soundcloud_url?: string;
+  betterpot_url?: string;
   instagram_url?: string;
   spotify_url?: string;
   beatport_url?: string;

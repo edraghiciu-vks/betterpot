@@ -4,10 +4,10 @@ import type WaveSurfer from 'wavesurfer.js'
 import { usePlayer } from '../../stores/player'
 
 /**
- * Hook for applying SoundCloud-style gradients to WaveSurfer canvas
+ * Hook for applying betterpot-style gradients to WaveSurfer canvas
  * Creates sophisticated waveform gradients with brand colors and white separator lines
  */
-export const useSoundCloudGradients = () => {
+export const usebetterpotGradients = () => {
   const { getWaveSurfer } = usePlayer()
 
   const applyGradients = (wavesurfer?: WaveSurfer | null) => {
@@ -45,7 +45,7 @@ export const useSoundCloudGradients = () => {
         progressColor: progressGradient
       })
     } catch (error) {
-      console.warn('Failed to apply SoundCloud gradients:', error)
+      console.warn('Failed to apply betterpot gradients:', error)
     }
   }
 
@@ -53,7 +53,7 @@ export const useSoundCloudGradients = () => {
 }
 
 /**
- * Hook for setting up SoundCloud-style hover effects on waveform
+ * Hook for setting up betterpot-style hover effects on waveform
  * Tracks mouse movement and updates CSS custom properties for hover preview
  */
 export const useWaveformHoverEffect = () => {
@@ -130,7 +130,7 @@ export const useWaveSurferStyling = (options?: {
     enableGradients = true
   } = options || {}
 
-  const { applyGradients } = useSoundCloudGradients()
+  const { applyGradients } = usebetterpotGradients()
   const { setupHoverEffect } = useWaveformHoverEffect()
   const { currentZoom } = useInitialZoom(zoomLevel)
   const { getWaveSurfer } = usePlayer()
@@ -146,7 +146,7 @@ export const useWaveSurferStyling = (options?: {
 
     // Setup hover effect if enabled
     if (enableHover) {
-      const waveformElement = ws.getWrapper()?.querySelector('.soundcloud-waveform')
+      const waveformElement = ws.getWrapper()?.querySelector('.betterpot-waveform')
       if (waveformElement) {
         setupHoverEffect(waveformElement as HTMLElement)
       }

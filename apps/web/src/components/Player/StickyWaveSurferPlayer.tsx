@@ -61,7 +61,7 @@ export const StickyWaveSurferPlayer = () => {
             when={state.currentTrack?.preview_url}
             fallback={<WaveformPlaceholder />}
           >
-            <div class="soundcloud-waveform-container">
+            <div class="betterpot-waveform-container">
               <WaveSurferWrapper
                 plugins={{
                   timeline: false,
@@ -81,7 +81,7 @@ export const StickyWaveSurferPlayer = () => {
                   interact: true,
                   dragToSeek: true
                 }}
-                containerClass="soundcloud-waveform"
+                containerClass="betterpot-waveform"
                 containerStyle={{
                   cursor: 'pointer',
                   position: 'relative',
@@ -94,7 +94,7 @@ export const StickyWaveSurferPlayer = () => {
                 }}
               >
                 {(playerState) => (
-                  <div class="soundcloud-hover-overlay"></div>
+                  <div class="betterpot-hover-overlay"></div>
                 )}
               </WaveSurferWrapper>
             </div>

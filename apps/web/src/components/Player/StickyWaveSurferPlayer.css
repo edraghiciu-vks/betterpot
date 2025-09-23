@@ -201,14 +201,14 @@
   backdrop-filter: blur(4px);
 }
 
-/* SoundCloud-style waveform container */
-.soundcloud-waveform-container {
+/* betterpot-style waveform container */
+.betterpot-waveform-container {
   position: relative;
   flex: 1;
   width: 100%;
 }
 
-.soundcloud-waveform {
+.betterpot-waveform {
   cursor: pointer !important;
   position: relative;
   width: 100%;
@@ -217,21 +217,21 @@
   background: transparent !important;
 }
 
-.soundcloud-waveform canvas {
+.betterpot-waveform canvas {
   background: transparent !important;
   border: none !important;
 }
 
-.soundcloud-waveform-container .wavesurfer-wrapper {
+.betterpot-waveform-container .wavesurfer-wrapper {
   background: transparent !important;
 }
 
-.soundcloud-waveform-container .wavesurfer-wrapper > div {
+.betterpot-waveform-container .wavesurfer-wrapper > div {
   background: transparent !important;
 }
 
-/* SoundCloud-style hover effect */
-.soundcloud-hover-overlay {
+/* betterpot-style hover effect */
+.betterpot-hover-overlay {
   position: absolute;
   left: 0;
   top: 0;
@@ -245,15 +245,15 @@
   transition: opacity 0.2s ease;
 }
 
-.soundcloud-waveform:hover .soundcloud-hover-overlay {
+.betterpot-waveform:hover .betterpot-hover-overlay {
   opacity: 1;
 }
 
-.soundcloud-waveform {
+.betterpot-waveform {
   --hover-width: 0px;
 }
 
-.soundcloud-waveform:hover .soundcloud-hover-overlay {
+.betterpot-waveform:hover .betterpot-hover-overlay {
   width: var(--hover-width);
 }
 
