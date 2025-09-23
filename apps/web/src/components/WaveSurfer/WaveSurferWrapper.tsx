@@ -7,7 +7,6 @@ import type { WaveSurferOptions } from 'wavesurfer.js'
 
 // Import WaveSurfer plugins
 import Timeline from 'wavesurfer.js/dist/plugins/timeline'
-import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram'
 import Minimap from 'wavesurfer.js/dist/plugins/minimap'
 import Zoom from 'wavesurfer.js/dist/plugins/zoom'
 
@@ -28,8 +27,6 @@ export interface WaveSurferControls {
   setScroll: (pixels: number) => void
   setScrollTime: (time: number) => void
   getScroll: () => number
-  // Access to plugins
-  getSpectrogramPlugin: () => any | null
 }
 
 export interface WaveSurferState {
@@ -46,20 +43,6 @@ export interface PluginConfig {
     primaryLabelInterval?: number
     secondaryLabelInterval?: number
     style?: Partial<CSSStyleDeclaration>
-  }
-  // Enable spectrogram plugin
-  spectrogram?: boolean | {
-    height?: number
-    fftSamples?: number
-    labels?: boolean
-    colorMap?: number[][] | 'gray' | 'igray' | 'roseus'
-    windowFunc?: 'bartlett' | 'bartlettHann' | 'blackman' | 'cosine' | 'gauss' | 'hamming' | 'hann' | 'lanczoz' | 'rectangular' | 'triangular'
-    scale?: 'linear' | 'logarithmic' | 'mel' | 'bark' | 'erb'
-    splitChannels?: boolean
-    frequencyMin?: number
-    frequencyMax?: number
-    gainDB?: number
-    rangeDB?: number
   }
   // Enable minimap plugin
   minimap?: boolean | {
@@ -109,7 +92,6 @@ export const WaveSurferWrapper = (props: WaveSurferWrapperProps) => {
   const [isReady, setIsReady] = createSignal(false)
   const [isLoading, setIsLoading] = createSignal(false)
   const [error, setError] = createSignal<string | null>(null)
-  const [spectrogramPlugin, setSpectrogramPlugin] = createSignal<any>(null)
 
   let containerRef: HTMLDivElement | undefined
 
@@ -157,25 +139,6 @@ export const WaveSurferWrapper = (props: WaveSurferWrapperProps) => {
           secondaryLabelInterval: 1,
           ...timelineOptions
         }))
-      }
-
-      if (props.plugins?.spectrogram) {
-        const spectrogramOptions = typeof props.plugins.spectrogram === 'boolean' 
-          ? {} 
-          : props.plugins.spectrogram
-        
-        const plugin = Spectrogram.create({
-          height: 100,
-          fftSamples: 512,
-          labels: true,
-          colorMap: 'roseus', // Use roseus colormap for better visual appeal
-          windowFunc: 'hann', // Hann window for better frequency resolution
-          scale: 'mel', // Mel scale for perceptually relevant frequency spacing
-          ...spectrogramOptions
-        })
-        
-        ws.registerPlugin(plugin)
-        setSpectrogramPlugin(plugin)
       }
 
       if (props.plugins?.minimap) {
@@ -297,9 +260,6 @@ export const WaveSurferWrapper = (props: WaveSurferWrapperProps) => {
     setScroll: (pixels: number) => wavesurfer()?.setScroll(pixels),
     setScrollTime: (time: number) => wavesurfer()?.setScrollTime(time),
     getScroll: () => wavesurfer()?.getScroll() ?? 0,
-    
-    // Plugin access
-    getSpectrogramPlugin: () => spectrogramPlugin(),
   }
 
   return (
