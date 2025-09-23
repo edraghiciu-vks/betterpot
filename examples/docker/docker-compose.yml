@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # API Server
+  api:
+    build:
+      context: ../../
+      dockerfile: examples/docker/Dockerfile.production
+      target: api
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - BEATPORT_USERNAME=${BEATPORT_USERNAME}
+      - BEATPORT_PASSWORD=${BEATPORT_PASSWORD}
+      - BEATPORT_CLIENT_ID=${BEATPORT_CLIENT_ID}
+      - FRONTEND_URL=http://localhost:3000
+    volumes:
+      - api_data:/app/data
+    networks:
+      - betterpot-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Web Application
+  web:
+    build:
+      context: ../../
+      dockerfile: examples/docker/Dockerfile.production
+      target: web
+    ports:
+      - "3000:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - betterpot-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for caching (optional, for production scaling)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - betterpot-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Nginx reverse proxy (for production)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api
+      - web
+    networks:
+      - betterpot-network
+    restart: unless-stopped
+    profiles: ["production"]
+
+  # Monitoring with Prometheus (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - betterpot-network
+    restart: unless-stopped
+    profiles: ["monitoring"]
+
+  # Grafana for metrics visualization (optional)
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=betterpot_admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - betterpot-network
+    restart: unless-stopped
+    profiles: ["monitoring"]
+
+volumes:
+  api_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  betterpot-network:
+    driver: bridge
