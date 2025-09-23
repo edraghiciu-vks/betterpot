@@ -1,0 +1,100 @@
+{
+  "name": "Betterpot Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true,
+      "username": "vscode",
+      "userUid": "automatic",
+      "userGid": "automatic"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "ppa": true,
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "installDirectlyFromGitHubRelease": true,
+      "version": "latest"
+    }
+  },
+
+  "containerEnv": {
+    "BUN_INSTALL": "/usr/local/bun",
+    "PATH": "/usr/local/bun/bin:${PATH}",
+    "NODE_ENV": "development"
+  },
+
+  "mounts": [
+    "source=betterpot-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+  ],
+
+  "postCreateCommand": ".devcontainer/setup.sh",
+
+  "forwardPorts": [3000, 8000, 8001, 5173],
+  
+  "portsAttributes": {
+    "3000": {
+      "label": "Web App (Vite)",
+      "onAutoForward": "notify"
+    },
+    "8000": {
+      "label": "API Server (Hono)",
+      "onAutoForward": "notify"
+    },
+    "8001": {
+      "label": "API Server Alt Port",
+      "onAutoForward": "ignore"
+    },
+    "5173": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "ignore"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "formulahendry.auto-rename-tag",
+        "ms-vscode.vscode-json",
+        "oven.bun-vscode",
+        "arcanis.vscode-zipfs",
+        "ms-playwright.playwright",
+        "ms-vscode.live-server",
+        "vscode-icons-team.vscode-icons",
+        "usernamehw.errorlens",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "typescript.preferences.packageJsonAutoImports": "auto",
+        "typescript.suggest.autoImports": true,
+        "typescript.preferences.includePackageJsonAutoImports": "auto",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "tailwindCSS.includeLanguages": {
+          "typescript": "javascript",
+          "typescriptreact": "javascript"
+        },
+        "files.associations": {
+          "*.css": "tailwindcss"
+        },
+        "emmet.includeLanguages": {
+          "typescript": "html",
+          "typescriptreact": "html"
+        }
+      }
+    }
+  },
+
+  "remoteUser": "vscode",
+  
+  "workspaceFolder": "/workspaces/betterpot",
+  
+  "shutdownAction": "stopContainer"
+}
