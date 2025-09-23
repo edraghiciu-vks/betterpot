@@ -17,6 +17,8 @@
     "@betterpot/ui-kit": "workspace:*",
     "@solidjs/router": "^0.10.10",
     "solid-js": "^1.8.0",
+    "tailwindcss": "^3.4.0",
+    "tailwindcss-animate": "^1.0.7",
     "wavesurfer.js": "^7.10.1"
   },
   "devDependencies": {

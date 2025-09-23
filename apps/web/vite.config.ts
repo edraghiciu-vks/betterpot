@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import path from "path"
 import solid from 'vite-plugin-solid'
 
 export default defineConfig({
@@ -25,5 +26,10 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['@betterpot/betterpot-client', '@betterpot/shared-types']
+  },
+  resolve: {
+    alias: {
+      '~': path.resolve(__dirname, 'src')
+    }
   }
 })

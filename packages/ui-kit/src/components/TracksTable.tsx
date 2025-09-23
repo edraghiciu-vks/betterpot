@@ -1,5 +1,6 @@
 import { JSX, Show, For } from 'solid-js';
 import { Button } from './Button';
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from './table';
 import type { BeatportTrack } from '@betterpot/shared-types';
 import './TracksTable.css';
 
@@ -72,7 +73,7 @@ const PaginationControls = (props: PaginationControlsProps) => {
         <For each={pages()}>
           {(page) => (
             <Button
-              variant={page === props.currentPage ? 'primary' : 'ghost'}
+              variant={page === props.currentPage ? 'default' : 'ghost'}
               onClick={() => props.onPageChange(page)}
             >
               {page}
@@ -112,44 +113,44 @@ const PaginationControls = (props: PaginationControlsProps) => {
 };
 
 const LoadingRow = () => (
-  <tr class="loading-row">
-    <td class="tracks-table-cell">
+  <TableRow class="loading-row">
+    <TableCell>
       <div class="loading-artwork-placeholder"></div>
-    </td>
-    <td class="tracks-table-cell">
+    </TableCell>
+    <TableCell>
       <div class="loading-placeholder loading-placeholder-75"></div>
-    </td>
-    <td class="tracks-table-cell">
+    </TableCell>
+    <TableCell>
       <div class="loading-placeholder loading-placeholder-50"></div>
-    </td>
-    <td class="tracks-table-cell">
+    </TableCell>
+    <TableCell>
       <div class="loading-placeholder loading-placeholder-50"></div>
-    </td>
-    <td class="tracks-table-cell">
+    </TableCell>
+    <TableCell>
       <div class="loading-placeholder loading-placeholder-33"></div>
-    </td>
-    <td class="tracks-table-cell">
+    </TableCell>
+    <TableCell>
       <div class="loading-placeholder loading-placeholder-64"></div>
-    </td>
-    <td class="tracks-table-cell">
+    </TableCell>
+    <TableCell>
       <div class="loading-placeholder loading-placeholder-64"></div>
-    </td>
-    <td class="tracks-table-cell">
+    </TableCell>
+    <TableCell>
       <div class="loading-placeholder loading-placeholder-80"></div>
-    </td>
-  </tr>
+    </TableCell>
+  </TableRow>
 );
 
 const EmptyState = () => (
-  <tr>
-    <td colSpan={8} class="empty-state">
+  <TableRow>
+    <TableCell colSpan={8} class="empty-state">
       <div>
         <div class="empty-state-icon">🎵</div>
         <p class="empty-state-title">No tracks found</p>
         <p class="empty-state-message">Try adjusting your search criteria</p>
       </div>
-    </td>
-  </tr>
+    </TableCell>
+  </TableRow>
 );
 
 export const TracksTable = (props: TracksTableProps) => {
@@ -178,127 +179,125 @@ export const TracksTable = (props: TracksTableProps) => {
       </Show>
 
       {/* Table */}
-      <div class="tracks-table-wrapper">
-        <table class="tracks-table">
-          <thead class="tracks-table-header">
-            <tr>
-              <th class="play-column">Play</th>
-              <th>Track</th>
-              <th>Artist</th>
-              <th>Label</th>
-              <th>Genre</th>
-              <th>BPM</th>
-              <th>Key</th>
-              <th>Purchase</th>
-            </tr>
-          </thead>
-          <tbody>
-            <Show when={props.isLoading}>
-              <For each={Array.from({ length: 10 })}>
-                {() => <LoadingRow />}
-              </For>
-            </Show>
-            
-            <Show when={!props.isLoading && props.tracks.length === 0}>
-              <EmptyState />
-            </Show>
-            
-            <Show when={!props.isLoading}>
-              <For each={props.tracks}>
-                {(track) => (
-                  <tr class="tracks-table-row">
-                    <td class="tracks-table-cell">
-                      <div class="track-artwork-container">
-                        <Show 
-                          when={track.release?.image?.uri} 
-                          fallback={
-                            <div class="track-artwork-placeholder">
-                              🎵
-                            </div>
-                          }
-                        >
-                          <img
-                            src={track.release!.image!.uri}
-                            alt={`${track.name} artwork`}
-                            class="track-artwork"
-                            onClick={() => props.onPlayTrack?.(track)}
-                            title={`Play "${track.name}"`}
-                            loading="lazy"
-                          />
-                          <div 
-                            class="track-artwork-overlay"
-                            onClick={() => props.onPlayTrack?.(track)}
-                          >
-                            <span class="track-artwork-play-button">▶️</span>
+      <Table class="tracks-table">
+        <TableHeader class="tracks-table-header">
+          <TableRow>
+            <TableHead class="play-column w-16">Play</TableHead>
+            <TableHead>Track</TableHead>
+            <TableHead>Artist</TableHead>
+            <TableHead>Label</TableHead>
+            <TableHead>Genre</TableHead>
+            <TableHead>BPM</TableHead>
+            <TableHead>Key</TableHead>
+            <TableHead>Purchase</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <Show when={props.isLoading}>
+            <For each={Array.from({ length: 10 })}>
+              {() => <LoadingRow />}
+            </For>
+          </Show>
+          
+          <Show when={!props.isLoading && props.tracks.length === 0}>
+            <EmptyState />
+          </Show>
+          
+          <Show when={!props.isLoading}>
+            <For each={props.tracks}>
+              {(track) => (
+                <TableRow class="tracks-table-row">
+                  <TableCell class="tracks-table-cell">
+                    <div class="track-artwork-container">
+                      <Show 
+                        when={track.release?.image?.uri} 
+                        fallback={
+                          <div class="track-artwork-placeholder">
+                            🎵
                           </div>
+                        }
+                      >
+                        <img
+                          src={track.release!.image!.uri}
+                          alt={`${track.name} artwork`}
+                          class="track-artwork"
+                          onClick={() => props.onPlayTrack?.(track)}
+                          title={`Play "${track.name}"`}
+                          loading="lazy"
+                        />
+                        <div 
+                          class="track-artwork-overlay"
+                          onClick={() => props.onPlayTrack?.(track)}
+                        >
+                          <span class="track-artwork-play-button">▶️</span>
+                        </div>
+                      </Show>
+                    </div>
+                  </TableCell>
+                  <TableCell class="tracks-table-cell">
+                    <div>
+                      <div class="track-name">
+                        {track.name}
+                        <Show when={track.mix_name}>
+                          <span class="track-mix-name">({track.mix_name})</span>
                         </Show>
                       </div>
-                    </td>
-                    <td class="tracks-table-cell">
-                      <div>
-                        <div class="track-name">
-                          {track.name}
-                          <Show when={track.mix_name}>
-                            <span class="track-mix-name">({track.mix_name})</span>
-                          </Show>
-                        </div>
-                        <div class="track-duration">
-                          {track.length || formatDuration(track.length_ms)}
-                        </div>
+                      <div class="track-duration">
+                        {track.length || formatDuration(track.length_ms)}
                       </div>
-                    </td>
-                    <td class="tracks-table-cell">
-                      {formatArtists(track.artists)}
-                      <Show when={track.remixers && track.remixers.length > 0}>
-                        <div class="track-remix">
-                          Remix: {formatArtists(track.remixers!)}
-                        </div>
-                      </Show>
-                    </td>
-                    <td class="tracks-table-cell">
-                      {track.release.label.name}
-                    </td>
-                    <td class="tracks-table-cell">
-                      {track.genre.name}
-                      <Show when={track.sub_genre}>
-                        <div class="track-subgenre">
-                          {track.sub_genre!.name}
-                        </div>
-                      </Show>
-                    </td>
-                    <td class="tracks-table-cell">
-                      {track.bpm || '—'}
-                    </td>
-                    <td class="tracks-table-cell">
-                      {track.key?.name || '—'}
-                      <Show when={track.key?.camelot_number}>
-                        <div class="track-camelot">
-                          {track.key!.camelot_number}{track.key!.camelot_letter}
-                        </div>
-                      </Show>
-                    </td>
-                    <td class="tracks-table-cell">
-                      <div class="track-price">
-                        <div class="track-price-amount">
-                          {track.price.display}
-                        </div>
-                        <a
-                          href={getBeatportUrl(track)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="track-buy-link"
-                        >
-                          Buy on Beatport →
-                        </a>
+                    </div>
+                  </TableCell>
+                  <TableCell class="tracks-table-cell">
+                    {formatArtists(track.artists)}
+                    <Show when={track.remixers && track.remixers.length > 0}>
+                      <div class="track-remix">
+                        Remix: {formatArtists(track.remixers!)}
                       </div>
-                    </td>
-                  </tr>
-                )}
-              </For>
-            </Show>
-          </tbody>
-        </table>
-      </div>
+                    </Show>
+                  </TableCell>
+                  <TableCell class="tracks-table-cell">
+                    {track.release.label.name}
+                  </TableCell>
+                  <TableCell class="tracks-table-cell">
+                    {track.genre.name}
+                    <Show when={track.sub_genre}>
+                      <div class="track-subgenre">
+                        {track.sub_genre!.name}
+                      </div>
+                    </Show>
+                  </TableCell>
+                  <TableCell class="tracks-table-cell">
+                    {track.bpm || '—'}
+                  </TableCell>
+                  <TableCell class="tracks-table-cell">
+                    {track.key?.name || '—'}
+                    <Show when={track.key?.camelot_number}>
+                      <div class="track-camelot">
+                        {track.key!.camelot_number}{track.key!.camelot_letter}
+                      </div>
+                    </Show>
+                  </TableCell>
+                  <TableCell class="tracks-table-cell">
+                    <div class="track-price">
+                      <div class="track-price-amount">
+                        {track.price.display}
+                      </div>
+                      <a
+                        href={getBeatportUrl(track)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="track-buy-link"
+                      >
+                        Buy on Beatport →
+                      </a>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </For>
+          </Show>
+        </TableBody>
+      </Table>
 
       {/* Pagination */}
       <Show when={!props.isLoading && props.tracks.length > 0}>

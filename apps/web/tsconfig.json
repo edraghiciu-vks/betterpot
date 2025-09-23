@@ -1,6 +1,12 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": [
+        "./src/*"
+      ]
+    },
     "outDir": "./dist",
     "rootDir": "./src",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
