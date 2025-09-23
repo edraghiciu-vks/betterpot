@@ -17,6 +17,45 @@ export const StickyWaveSurferPlayer = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
+  // Apply SoundCloud-style gradients
+  const applySoundCloudGradients = (wavesurfer: any) => {
+    if (!wavesurfer) return
+    
+    try {
+      const canvas = wavesurfer.getWrapper().querySelector('canvas')
+      if (!canvas) return
+      
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+      
+      // Create the unplayed waveform gradient (adapted to your color scheme)
+      const waveGradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
+      waveGradient.addColorStop(0, '#9B9B9B') // Top color - lighter gray
+      waveGradient.addColorStop(0.7, '#9B9B9B')
+      waveGradient.addColorStop(0.71, '#ffffff') // White separator line
+      waveGradient.addColorStop(0.72, '#ffffff')
+      waveGradient.addColorStop(0.73, '#D1D1D1') // Bottom color - lighter
+      waveGradient.addColorStop(1, '#D1D1D1')
+      
+      // Create the progress gradient (using your brand colors instead of orange)
+      const progressGradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
+      progressGradient.addColorStop(0, '#6F6A95') // Brighter brand purple - top
+      progressGradient.addColorStop(0.7, '#5d5539') // Brighter brown - top
+      progressGradient.addColorStop(0.71, '#ffffff') // White separator
+      progressGradient.addColorStop(0.72, '#ffffff')
+      progressGradient.addColorStop(0.73, '#AA9FD0') // Brighter lighter purple - bottom
+      progressGradient.addColorStop(1, '#AA9FD0')
+      
+      // Apply gradients to WaveSurfer
+      wavesurfer.setOptions({
+        waveColor: waveGradient,
+        progressColor: progressGradient
+      })
+    } catch (error) {
+      console.warn('Failed to apply SoundCloud gradients:', error)
+    }
+  }
+
   // Reset WaveSurfer state when track changes
   createEffect(() => {
     if (state.currentTrack) {
@@ -47,6 +86,21 @@ export const StickyWaveSurferPlayer = () => {
     }
   })
 
+  // Add mouse tracking for SoundCloud-style hover effect
+  const setupHoverEffect = (waveformElement: HTMLElement) => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = waveformElement.getBoundingClientRect()
+      const offsetX = e.clientX - rect.left
+      waveformElement.style.setProperty('--hover-width', `${offsetX}px`)
+    }
+
+    waveformElement.addEventListener('pointermove', handleMouseMove)
+    
+    return () => {
+      waveformElement.removeEventListener('pointermove', handleMouseMove)
+    }
+  }
+
   return (
     <div class="sticky-player">
       <div class="sticky-player__content">
@@ -56,34 +110,75 @@ export const StickyWaveSurferPlayer = () => {
             when={state.currentTrack} 
             fallback={
               <div class="sticky-player__placeholder">
-                <div class="sticky-player__placeholder-artwork">🎵</div>
-                <div class="sticky-player__track-details">
+                <div class="sticky-player__placeholder-artwork-large">🎵</div>
+                <div class="sticky-player__placeholder-details">
                   <div class="sticky-player__track-name placeholder">
                     Load a track to start playing
                   </div>
-                  <div class="sticky-player__artists placeholder">
+                  <div class="sticky-player__track-metadata placeholder">
                     No track selected
                   </div>
                 </div>
               </div>
             }
           >
-            <Show when={state.currentTrack?.artwork_url}>
-              <img 
-                src={state.currentTrack!.artwork_url} 
-                alt="Track artwork"
-                class="sticky-player__artwork"
-              />
-            </Show>
-            <div class="sticky-player__track-details">
-              <div class="sticky-player__track-name">
-                {state.currentTrack!.name}
-                {state.currentTrack!.mix_name && (
-                  <span class="sticky-player__mix-name"> ({state.currentTrack!.mix_name})</span>
-                )}
+            <div class="sticky-player__track-layout">
+              {/* Large Artwork */}
+              <div class="sticky-player__artwork-container">
+                <Show 
+                  when={state.currentTrack?.artwork_url}
+                  fallback={
+                    <div class="sticky-player__artwork-placeholder">🎵</div>
+                  }
+                >
+                  <img 
+                    src={state.currentTrack!.artwork_url} 
+                    alt={`Album artwork for ${state.currentTrack!.name}`}
+                    class="sticky-player__artwork-large"
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      // Fallback to placeholder on image load error
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      const placeholder = target.parentElement?.querySelector('.sticky-player__artwork-placeholder')
+                      if (placeholder) {
+                        ;(placeholder as HTMLElement).style.display = 'flex'
+                      }
+                    }}
+                    onLoad={(e) => {
+                      // Hide placeholder when image loads successfully
+                      const target = e.target as HTMLImageElement
+                      const placeholder = target.parentElement?.querySelector('.sticky-player__artwork-placeholder')
+                      if (placeholder) {
+                        ;(placeholder as HTMLElement).style.display = 'none'
+                      }
+                    }}
+                  />
+                  {/* Hidden placeholder for error fallback */}
+                  <div class="sticky-player__artwork-placeholder" style="display: none;">🎵</div>
+                </Show>
               </div>
-              <div class="sticky-player__artists">
-                {state.currentTrack!.artists.join(', ')}
+              
+              {/* Track Details Next to Artwork */}
+              <div class="sticky-player__track-details-vertical">
+                <div class="sticky-player__track-name-large">
+                  {state.currentTrack!.name}
+                  {state.currentTrack!.mix_name && (
+                    <span class="sticky-player__mix-name"> ({state.currentTrack!.mix_name})</span>
+                  )}
+                </div>
+                
+                <div class="sticky-player__artists-large">
+                  {state.currentTrack!.artists.join(', ')}
+                </div>
+                
+                {/* Only show label here, other metadata moved to controls */}
+                <Show when={state.currentTrack!.label}>
+                  <div class="sticky-player__basic-metadata">
+                    {state.currentTrack!.label!.name}
+                  </div>
+                </Show>
               </div>
             </div>
           </Show>
@@ -112,130 +207,77 @@ export const StickyWaveSurferPlayer = () => {
               </div>
             }
           >
-            <WaveSurferWrapper
-              url={state.currentTrack!.preview_url}
-              plugins={{
-                timeline: false,
-                minimap: true
-              }}
-              options={{
-                height: 80,
-                waveColor: '#4F4A85',
-                cursorColor: '#f59e0b',
-                barWidth: 3,
-                barGap: 0.5,
-                barRadius: 1,
-                normalize: true,
-              }}
-              onLoading={setWsLoading}
-              onReady={() => {
-                setWsReady(true)
-                setWsLoading(false)
-                setWsError(null)
-              }}
-              onError={(error) => {
-                setWsError(error.message)
-                setWsLoading(false)
-                setWsReady(false)
-              }}
-              containerStyle={{
-                'background-color': 'rgba(255, 255, 255, 0.1)',
-                'border-radius': '6px',
-                padding: '8px',
-                flex: '1',
-                'width': '100%',
-                'min-height': '90px'
-              }}
-            >
-              {(controls, wsState) => {
-                // Store controls for later use
-                setWsControls(controls)
-                
-                return (
-                  <div class="sticky-player__controls">
-                    <button 
-                      onClick={controls.togglePlayPause}
-                      disabled={wsState.isLoading || !!wsState.error}
-                      class="sticky-player__play-btn"
-                      title={controls.isPlaying() ? 'Pause' : 'Play'}
-                    >
-                      {controls.isPlaying() ? '⏸️' : '▶️'}
-                    </button>
+            <div class="soundcloud-waveform-container">
+              <WaveSurferWrapper
+                url={state.currentTrack!.preview_url}
+                plugins={{
+                  timeline: false,
+                  minimap: false
+                }}
+                options={{
+                  height: 80,
+                  // We'll set gradients programmatically in the component
+                  waveColor: '#9B9B9B', // Fallback - brighter
+                  progressColor: '#6F6A95', // Fallback - brighter 
+                  cursorColor: 'transparent',
+                  barWidth: 2,
+                  barGap: 0.5,
+                  barRadius: 0,
+                  normalize: true,
+                  fillParent: true,
+                  interact: true,
+                  dragToSeek: true
+                }}
+                onLoading={setWsLoading}
+                onReady={() => {
+                  setWsReady(true)
+                  setWsLoading(false)
+                  setWsError(null)
+                  
+                  // Apply SoundCloud-style gradients after ready
+                  const currentControls = wsControls()
+                  if (currentControls) {
+                    applySoundCloudGradients(currentControls.getWaveSurfer())
                     
-                    <button 
-                      onClick={() => {
-                        controls.stop()
-                        stop()
-                      }}
-                      disabled={wsState.isLoading || !!wsState.error}
-                      class="sticky-player__stop-btn"
-                      title="Stop"
-                    >
-                      ⏹️
-                    </button>
-                    
-                    <div class="sticky-player__zoom-controls">
-                      <button
-                        onClick={() => {
-                          if (zoomLevel() > 0.5) {
-                            const newZoom = Math.max(0.5, zoomLevel() - 0.5)
-                            setZoomLevel(newZoom)
-                            controls.zoom(newZoom * 20)
-                          }
-                        }}
-                        disabled={wsState.isLoading || !!wsState.error || zoomLevel() <= 0.5}
-                        class="sticky-player__zoom-btn"
-                        title="Zoom Out"
-                      >
-                        🔍-
-                      </button>
-                      <span class="sticky-player__zoom-level">
-                        {Math.round(zoomLevel() * 100)}%
-                      </span>
-                      <button 
-                        onClick={() => {
-                          if (zoomLevel() < 3) {
-                            const newZoom = Math.min(3, zoomLevel() + 0.5)
-                            setZoomLevel(newZoom)
-                            controls.zoom(newZoom * 20)
-                          }
-                        }}
-                        disabled={wsState.isLoading || !!wsState.error || zoomLevel() >= 3}
-                        class="sticky-player__zoom-btn"
-                        title="Zoom In"
-                      >
-                        🔍+
-                      </button>
-                    </div>
-                    
-                    <div class="sticky-player__time">
-                      {formatTime(controls.getCurrentTime())} / {formatTime(controls.getDuration())}
-                    </div>
-
-                    <div class="sticky-player__status">
-                      {wsState.isLoading && <span class="loading">Loading...</span>}
-                      {wsState.error && <span class="error">Error: {wsState.error}</span>}
-                      {wsState.isReady && !wsState.isLoading && !wsState.error && (
-                        <span class="ready">Ready</span>
-                      )}
-                    </div>
-                  </div>
-                )
-              }}
-            </WaveSurferWrapper>
+                    // Setup hover effect
+                    const waveformElement = currentControls.getWaveSurfer()?.getWrapper()?.querySelector('.soundcloud-waveform')
+                    if (waveformElement) {
+                      setupHoverEffect(waveformElement as HTMLElement)
+                    }
+                  }
+                }}
+                onError={(error) => {
+                  setWsError(error.message)
+                  setWsLoading(false)
+                  setWsReady(false)
+                }}
+                containerClass="soundcloud-waveform"
+                containerStyle={{
+                  cursor: 'pointer',
+                  position: 'relative',
+                  flex: '1',
+                  'width': '100%'
+                }}
+                onTimeUpdate={(time) => {
+                  // Force updates for time display
+                }}
+                onPlayStateChange={(isPlaying) => {
+                  // Handle play state changes if needed
+                }}
+              >
+                {(controls, wsState) => {
+                  // Store controls for later use
+                  setWsControls(controls)
+                  
+                  
+                  return (
+                    <div class="soundcloud-hover-overlay"></div>
+                  )
+                }}
+              </WaveSurferWrapper>
+            </div>
           </Show>
         </div>
-
-        {/* Close Button - only show when track is loaded */}
-        <Show when={state.currentTrack}>
-          <button 
-            class="sticky-player__close-btn"
-            onClick={stop}
-            title="Close player"
-          >
-            ✕
-          </button>
-        </Show>
       </div>
     </div>
   )

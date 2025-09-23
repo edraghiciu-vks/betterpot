@@ -32,7 +32,23 @@ export const Search = () => {
       duration: 0, // Duration will be set by WaveSurfer when track loads
       artwork_url: beatportTrack.release?.image?.uri,
       mix_name: beatportTrack.mix_name,
-      preview_duration: previewDurationSeconds > 0 ? previewDurationSeconds : undefined
+      preview_duration: previewDurationSeconds > 0 ? previewDurationSeconds : undefined,
+      // Preserve metadata for the player
+      bpm: beatportTrack.bpm,
+      key: beatportTrack.key ? {
+        name: beatportTrack.key.name,
+        camelot_number: beatportTrack.key.camelot_number,
+        camelot_letter: beatportTrack.key.camelot_letter
+      } : undefined,
+      genre: beatportTrack.genre ? {
+        name: beatportTrack.genre.name
+      } : undefined,
+      sub_genre: beatportTrack.sub_genre ? {
+        name: beatportTrack.sub_genre.name
+      } : undefined,
+      label: beatportTrack.release?.label ? {
+        name: beatportTrack.release.label.name
+      } : undefined
     };
   };
 

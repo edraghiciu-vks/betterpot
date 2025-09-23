@@ -10,6 +10,22 @@ export interface Track {
   artwork_url?: string
   mix_name?: string
   preview_duration?: number // Preview duration in seconds
+  // Additional metadata
+  bpm?: number
+  key?: {
+    name: string
+    camelot_number?: number
+    camelot_letter?: string
+  }
+  genre?: {
+    name: string
+  }
+  sub_genre?: {
+    name: string
+  }
+  label?: {
+    name: string
+  }
 }
 
 export interface PlayerState {

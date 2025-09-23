@@ -8,12 +8,13 @@
   box-shadow: 0 2px 10px rgba(61, 57, 41, 0.1);
   color: #3d3929;
   transition: all 0.3s ease;
+
 }
 
 .sticky-player__content {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   padding: 0.75rem 1.5rem;
   max-width: 100%;
 }
@@ -89,6 +90,24 @@
   gap: 0.75rem;
   margin-top: 0.5rem;
   flex-wrap: wrap;
+}
+
+/* Metadata in controls area - no labels */
+.sticky-player__controls-metadata {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: rgba(61, 57, 41, 0.7);
+}
+
+.sticky-player__metadata-value {
+  background: rgba(61, 57, 41, 0.08);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #3d3929;
 }
 
 .sticky-player__play-btn,
@@ -202,24 +221,46 @@
 @media (max-width: 768px) {
   .sticky-player__content {
     padding: 0.5rem 1rem;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
   .sticky-player__info {
-    min-width: 140px;
+    min-width: 180px;
   }
 
-  .sticky-player__artwork {
-    width: 36px;
-    height: 36px;
+  .sticky-player__artwork-large {
+    width: 70px;
+    height: 70px;
   }
 
-  .sticky-player__track-name {
+  .sticky-player__artwork-placeholder {
+    width: 70px;
+    height: 70px;
+    font-size: 1.5rem;
+  }
+
+  .sticky-player__placeholder-artwork-large {
+    width: 70px;
+    height: 70px;
+    font-size: 1.5rem;
+  }
+
+  .sticky-player__track-name-large {
     font-size: 0.8rem;
   }
 
-  .sticky-player__artists {
+  .sticky-player__artists-large {
     font-size: 0.75rem;
+  }
+
+  .sticky-player__controls-metadata {
+    gap: 0.5rem;
+    margin-left: 0;
+  }
+
+  .sticky-player__metadata-value {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
   }
 
   .sticky-player__controls {
@@ -232,42 +273,50 @@
     padding: 0.4rem 0.6rem;
     font-size: 0.8rem;
   }
-
-  .sticky-player__time {
-    font-size: 0.75rem;
-  }
 }
 
 @media (max-width: 480px) {
   .sticky-player__content {
     padding: 0.4rem 0.75rem;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
   .sticky-player__info {
-    min-width: 120px;
+    min-width: 160px;
   }
 
-  .sticky-player__artwork {
-    width: 32px;
-    height: 32px;
+  .sticky-player__artwork-large {
+    width: 60px;
+    height: 60px;
   }
 
-  .sticky-player__track-details {
-    max-width: 100px;
+  .sticky-player__artwork-placeholder {
+    width: 60px;
+    height: 60px;
+    font-size: 1.25rem;
   }
 
-  .sticky-player__track-name {
+  .sticky-player__placeholder-artwork-large {
+    width: 60px;
+    height: 60px;
+    font-size: 1.25rem;
+  }
+
+  .sticky-player__track-name-large {
     font-size: 0.75rem;
   }
 
-  .sticky-player__artists {
+  .sticky-player__artists-large {
     font-size: 0.7rem;
   }
 
-  .sticky-player__close-btn {
-    padding: 0.4rem;
-    font-size: 0.75rem;
+  .sticky-player__controls-metadata {
+    gap: 0.4rem;
+  }
+
+  .sticky-player__metadata-value {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.3rem;
   }
 }
 
@@ -339,9 +388,9 @@
 
 .placeholder-bar {
   width: 3px;
-  background: #4F4A85;
+  background: #6F6A95;
   border-radius: 1px;
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 .sticky-player__placeholder-text {
@@ -355,4 +404,224 @@
   background: rgba(245, 243, 238, 0.8);
   border-radius: 4px;
   backdrop-filter: blur(4px);
+}
+
+/* SoundCloud-style waveform container */
+.soundcloud-waveform-container {
+  position: relative;
+  flex: 1;
+  width: 100%;
+}
+
+.soundcloud-waveform {
+  cursor: pointer !important;
+  position: relative;
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: transparent !important;
+}
+
+/* Ensure no dark backgrounds on waveform canvas */
+.soundcloud-waveform canvas {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Remove any dark backgrounds from wavesurfer wrapper */
+.soundcloud-waveform-container .wavesurfer-wrapper {
+  background: transparent !important;
+}
+
+.soundcloud-waveform-container .wavesurfer-wrapper > div {
+  background: transparent !important;
+}
+
+/* SoundCloud-style hover effect */
+.soundcloud-hover-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  pointer-events: none;
+  height: 100%;
+  width: 0;
+  mix-blend-mode: overlay;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.soundcloud-waveform:hover .soundcloud-hover-overlay {
+  opacity: 1;
+}
+
+/* Add hover effect to track mouse movement */
+.soundcloud-waveform {
+  --hover-width: 0px;
+}
+
+.soundcloud-waveform:hover .soundcloud-hover-overlay {
+  width: var(--hover-width);
+}
+
+/* SoundCloud-style time displays positioned over waveform */
+.soundcloud-time-display {
+  position: absolute;
+  z-index: 11;
+  top: 50%;
+  margin-top: -1px;
+  transform: translateY(-50%);
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 2px 4px;
+  color: #ddd;
+  border-radius: 2px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.soundcloud-time-current {
+  left: 4px;
+}
+
+.soundcloud-time-duration {
+  right: 4px;
+}
+
+/* Compact track layout */
+.sticky-player__track-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+/* Artwork container */
+.sticky-player__artwork-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Compact track details next to artwork */
+.sticky-player__track-details-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.sticky-player__track-name-large {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #3d3929;
+  line-height: 1.3;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.sticky-player__mix-name {
+  font-weight: 400;
+  color: rgba(61, 57, 41, 0.7);
+}
+
+.sticky-player__artists-large {
+  font-size: 0.8rem;
+  color: rgba(61, 57, 41, 0.7);
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/* Basic metadata under track info (only label) */
+.sticky-player__basic-metadata {
+  font-size: 0.75rem;
+  color: rgba(61, 57, 41, 0.6);
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/* Metadata in controls area - no labels */
+.sticky-player__controls-metadata {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: rgba(61, 57, 41, 0.7);
+}
+
+.sticky-player__metadata-value {
+  background: rgba(61, 57, 41, 0.08);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #3d3929;
+}
+
+/* Updated artwork styles with proper sizing and modern loading */
+.sticky-player__artwork-large {
+  width: 90px;
+  height: 90px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(61, 57, 41, 0.15);
+  transition: transform 0.2s ease;
+  /* Modern image loading optimizations */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+.sticky-player__artwork-large:hover {
+  transform: scale(1.02);
+}
+
+.sticky-player__artwork-placeholder {
+  width: 90px;
+  height: 90px;
+  background: linear-gradient(135deg, rgba(61, 57, 41, 0.1), rgba(79, 74, 133, 0.1));
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: rgba(61, 57, 41, 0.5);
+  flex-shrink: 0;
+}
+
+.sticky-player__placeholder-artwork-large {
+  width: 90px;
+  height: 90px;
+  background: linear-gradient(135deg, rgba(61, 57, 41, 0.1), rgba(79, 74, 133, 0.1));
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: rgba(61, 57, 41, 0.5);
+  flex-shrink: 0;
+}
+.sticky-player__placeholder-artwork-large {
+  width: 90px;
+  height: 90px;
+  background: linear-gradient(135deg, rgba(61, 57, 41, 0.1), rgba(79, 74, 133, 0.1));
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: rgba(61, 57, 41, 0.5);
+  flex-shrink: 0;
+}
+
+audio::-webkit-media-controls-panel {
+                background-color: red;
 }

@@ -109,7 +109,9 @@ export const WaveSurferWrapper = (props: WaveSurferWrapperProps) => {
     fillParent: true,
     autoScroll: true, // Native autoscroll feature
     autoCenter: true, // Native autoCenter feature
+    mediaControls: true,
     dragToSeek: true, // Native drag to seek
+    
   }
 
   onMount(() => {
