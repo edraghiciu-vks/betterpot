@@ -1,0 +1,146 @@
+# Multi-stage Dockerfile optimized for Betterpot production deployment
+# Uses Bun runtime for optimal performance
+
+FROM oven/bun:1.2.21-alpine AS base
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies for audio processing (if needed)
+RUN apk add --no-cache \
+    ca-certificates \
+    curl \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 betterpot && \
+    adduser --system --uid 1001 --ingroup betterpot betterpot
+
+# ============================================
+# Dependencies stage - install all dependencies
+# ============================================
+FROM base AS deps
+
+# Copy package files
+COPY package.json bun.lock ./
+COPY packages/shared-types/package.json ./packages/shared-types/
+COPY packages/betterpot-client/package.json ./packages/betterpot-client/
+COPY packages/ui-kit/package.json ./packages/ui-kit/
+COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
+
+# Install all dependencies (including devDependencies for building)
+RUN bun install --frozen-lockfile
+
+# ============================================
+# Builder stage - build the application
+# ============================================
+FROM base AS builder
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/packages/*/node_modules ./packages/*/node_modules
+COPY --from=deps /app/apps/*/node_modules ./apps/*/node_modules
+
+# Copy source code
+COPY . .
+
+# Build shared packages first (in dependency order)
+RUN bun run build --filter=@betterpot/shared-types
+RUN bun run build --filter=@betterpot/betterpot-client
+RUN bun run build --filter=@betterpot/ui-kit
+
+# Build applications
+RUN bun run build --filter=@betterpot/api
+RUN bun run build --filter=@betterpot/web
+
+# Clean up development dependencies to reduce image size
+RUN bun install --frozen-lockfile --production
+
+# ============================================
+# Production API stage
+# ============================================
+FROM base AS api
+
+# Copy built API application
+COPY --from=builder --chown=betterpot:betterpot /app/apps/api/dist ./apps/api/dist
+COPY --from=builder --chown=betterpot:betterpot /app/packages/*/dist ./packages/*/dist
+
+# Copy production dependencies
+COPY --from=builder --chown=betterpot:betterpot /app/node_modules ./node_modules
+COPY --from=builder --chown=betterpot:betterpot /app/packages/*/node_modules ./packages/*/node_modules
+
+# Copy configuration files
+COPY --from=builder --chown=betterpot:betterpot /app/package.json ./
+COPY --from=builder --chown=betterpot:betterpot /app/packages/*/package.json ./packages/*/
+
+# Switch to non-root user
+USER betterpot
+
+# Expose API port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Start API server
+CMD ["bun", "apps/api/dist/index.js"]
+
+# ============================================
+# Production Web stage (for separate web deployment)
+# ============================================
+FROM nginx:alpine AS web
+
+# Copy built web application
+COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY examples/docker/nginx.conf /etc/nginx/nginx.conf
+
+# Expose web port
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
+
+# ============================================
+# All-in-one production stage (development/testing)
+# ============================================
+FROM base AS production
+
+# Install nginx for serving static files
+RUN apk add --no-cache nginx
+
+# Copy built applications
+COPY --from=builder --chown=betterpot:betterpot /app/apps/api/dist ./apps/api/dist
+COPY --from=builder --chown=betterpot:betterpot /app/apps/web/dist ./apps/web/dist
+COPY --from=builder --chown=betterpot:betterpot /app/packages/*/dist ./packages/*/dist
+
+# Copy production dependencies
+COPY --from=builder --chown=betterpot:betterpot /app/node_modules ./node_modules
+COPY --from=builder --chown=betterpot:betterpot /app/packages/*/node_modules ./packages/*/node_modules
+
+# Copy configuration files
+COPY --from=builder --chown=betterpot:betterpot /app/package.json ./
+COPY --from=builder --chown=betterpot:betterpot /app/packages/*/package.json ./packages/*/
+
+# Copy nginx configuration for serving web app
+COPY examples/docker/nginx-combined.conf /etc/nginx/nginx.conf
+
+# Create startup script
+COPY examples/docker/start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Switch to non-root user
+USER betterpot
+
+# Expose both ports
+EXPOSE 3000 8000
+
+# Health check for both services
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/health && curl -f http://localhost:3000 || exit 1
+
+# Start both services
+CMD ["/start.sh"]

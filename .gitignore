@@ -38,3 +38,16 @@ beatport_token.json
 
 # Turbo
 .turbo
+
+# CI/CD artifacts and reports
+playwright-report/
+test-results/
+lighthouse-reports/
+coverage/
+
+# Docker volumes
+docker-data/
+
+# Temporary files
+tmp/
+temp/

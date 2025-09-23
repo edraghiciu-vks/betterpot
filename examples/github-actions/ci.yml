@@ -1,0 +1,357 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  BUN_VERSION: 1.2.21
+
+jobs:
+  setup:
+    name: Setup & Dependencies
+    runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.key }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+          
+      - name: Generate cache key
+        id: cache-key
+        run: echo "key=${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}" >> $GITHUB_OUTPUT
+        
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+            packages/*/node_modules
+          key: ${{ steps.cache-key.outputs.key }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+            
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    needs: setup
+    strategy:
+      matrix:
+        check: [type-check, lint]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+          
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+            packages/*/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+          
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        
+      - name: Run ${{ matrix.check }}
+        run: bun run ${{ matrix.check }}
+
+  build:
+    name: Build Packages
+    runs-on: ubuntu-latest
+    needs: setup
+    strategy:
+      matrix:
+        package: [shared-types, betterpot-client, ui-kit, api, web]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+          
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+            packages/*/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+          
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        
+      - name: Build ${{ matrix.package }}
+        run: bun run build --filter=@betterpot/${{ matrix.package }}
+        
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.package }}
+          path: |
+            packages/${{ matrix.package }}/dist
+            apps/${{ matrix.package }}/dist
+          retention-days: 1
+
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    needs: [setup, build]
+    strategy:
+      matrix:
+        test-suite: [unit, integration]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+          
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+            packages/*/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+          
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: build-*
+          merge-multiple: true
+          
+      - name: Run unit tests
+        if: matrix.test-suite == 'unit'
+        run: |
+          bun test --coverage packages/betterpot-client/tests/
+          bun test --coverage apps/api/src/
+          
+      - name: Run integration tests
+        if: matrix.test-suite == 'integration'
+        run: bun run test --filter=@betterpot/web
+        
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [setup, build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+          
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+            packages/*/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+          
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        
+      - name: Install Playwright
+        run: bunx playwright install --with-deps
+        
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: build-*
+          merge-multiple: true
+          
+      - name: Start application
+        run: |
+          bun run dev &
+          sleep 10
+          curl --retry 10 --retry-delay 3 --retry-connrefused http://localhost:3000
+          
+      - name: Run Playwright tests
+        run: bunx playwright test
+        
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+          
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+            packages/*/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+          
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        
+      - name: Run dependency audit
+        run: bun audit
+        
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: typescript, javascript
+          
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  performance:
+    name: Performance Analysis
+    runs-on: ubuntu-latest
+    needs: [setup, build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+          
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+            packages/*/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+          
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: build-*
+          merge-multiple: true
+          
+      - name: Analyze bundle size
+        run: |
+          echo "## Bundle Size Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          du -sh apps/web/dist/ >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          
+      - name: Start application
+        run: |
+          bun run dev &
+          sleep 10
+          
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: |
+            http://localhost:3000
+            http://localhost:3000/search
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [quality, test, e2e, security]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+          
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: build-*
+          merge-multiple: true
+          
+      - name: Deploy to staging
+        run: |
+          # Example deployment script
+          echo "Deploying to staging environment..."
+          # Add your deployment logic here
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [quality, test, e2e, security, performance]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+          
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: build-*
+          merge-multiple: true
+          
+      - name: Deploy to production
+        run: |
+          # Example deployment script
+          echo "Deploying to production environment..."
+          # Add your deployment logic here
