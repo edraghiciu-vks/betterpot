@@ -1,5 +1,7 @@
 // Player store - WaveSurfer-based audio player state management
-import { createContext, useContext, createSignal, createEffect, onCleanup } from 'solid-js'
+import { createContext, useContext, createSignal, onCleanup } from 'solid-js'
+import WaveSurfer from 'wavesurfer.js'
+import type { WaveSurferOptions } from 'wavesurfer.js'
 
 export interface Track {
   id: string
@@ -38,11 +40,14 @@ export interface PlayerState {
   error: string | null
   queue: Track[]
   currentIndex: number
+  // WaveSurfer-specific state
+  ready: boolean
 }
 
 interface PlayerContextType {
   state: PlayerState
-  play: (track: Track) => void
+  // Core player controls
+  play: (track?: Track) => Promise<void>
   pause: () => void
   resume: () => void
   stop: () => void
@@ -52,6 +57,13 @@ interface PlayerContextType {
   skipBackward: (seconds?: number) => void
   next: () => void
   previous: () => void
+  // WaveSurfer management
+  setWaveSurfer: (container: HTMLElement, options?: Partial<WaveSurferOptions>) => void
+  getWaveSurfer: () => WaveSurfer | null
+  // Advanced controls
+  zoom: (minPxPerSec: number) => void
+  setScroll: (pixels: number) => void
+  setScrollTime: (time: number) => void
 }
 
 const PlayerContext = createContext<PlayerContextType>()
@@ -67,6 +79,10 @@ export function PlayerProvider(props: { children: any }) {
   const [error, setError] = createSignal<string | null>(null)
   const [queue, setQueue] = createSignal<Track[]>([])
   const [currentIndex, setCurrentIndex] = createSignal(0)
+  const [ready, setReady] = createSignal(false)
+
+  // WaveSurfer instance
+  const [wavesurfer, setWavesurferSignal] = createSignal<WaveSurfer | null>(null)
 
   const state: PlayerState = {
     get currentTrack() { return currentTrack() },
@@ -77,63 +93,175 @@ export function PlayerProvider(props: { children: any }) {
     get loading() { return loading() },
     get error() { return error() },
     get queue() { return queue() },
-    get currentIndex() { return currentIndex() }
+    get currentIndex() { return currentIndex() },
+    get ready() { return ready() }
   }
 
-  const play = async (track: Track) => {
-    if (!track.preview_url) {
-      setError('No preview URL available for this track')
-      return
+  const setWaveSurfer = (container: HTMLElement, options?: Partial<WaveSurferOptions>) => {
+    // Clean up existing instance
+    const existing = wavesurfer()
+    if (existing) {
+      existing.destroy()
     }
 
-    setError(null)
-    setCurrentTrack(track)
-    setLoading(true)
+    try {
+      // Default options optimized for music tracks
+      const defaultOptions: WaveSurferOptions = {
+        container,
+        waveColor: '#9B9B9B',
+        progressColor: '#6F6A95',
+        cursorColor: 'transparent',
+        barWidth: 2,
+        barGap: 0.5,
+        barRadius: 0,
+        height: 80,
+        normalize: true,
+        fillParent: true,
+        interact: true,
+        dragToSeek: true,
+        autoScroll: true,
+        autoCenter: true,
+        mediaControls: true,
+        ...options
+      }
+
+      const ws = WaveSurfer.create(defaultOptions)
+      setWavesurferSignal(ws)
+
+      // Set up event listeners
+      ws.on('loading', (percent) => {
+        setLoading(percent < 100)
+      })
+
+      ws.on('ready', (dur) => {
+        setReady(true)
+        setLoading(false)
+        setDuration(dur)
+        setError(null)
+        
+        // Apply volume
+        ws.setVolume(volume())
+        
+        // Auto-play if there's a current track
+        if (currentTrack()) {
+          ws.play()
+        }
+      })
+
+      ws.on('play', () => {
+        setIsPlaying(true)
+      })
+
+      ws.on('pause', () => {
+        setIsPlaying(false)
+      })
+
+      ws.on('timeupdate', (time) => {
+        setCurrentTime(time)
+      })
+
+      ws.on('interaction', (time) => {
+        setCurrentTime(time)
+      })
+
+      ws.on('error', (err) => {
+        setError(err.message)
+        setLoading(false)
+        setReady(false)
+      })
+
+      // Load current track if available
+      const track = currentTrack()
+      if (track?.preview_url) {
+        ws.load(track.preview_url)
+      }
+
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to create WaveSurfer'
+      setError(errorMsg)
+    }
+  }
+
+  const getWaveSurfer = () => wavesurfer()
+
+  const play = async (track?: Track) => {
+    const ws = wavesurfer()
     
-    // WaveSurfer will handle the actual audio loading and playback
-    // The StickyWaveSurferPlayer component will manage the WaveSurfer instance
+    if (track) {
+      // Playing a new track
+      if (!track.preview_url) {
+        setError('No preview URL available for this track')
+        return
+      }
+
+      setError(null)
+      setCurrentTrack(track)
+      setReady(false)
+      setLoading(true)
+      
+      if (ws) {
+        ws.load(track.preview_url)
+      }
+    } else {
+      // Resume current track
+      if (ws && ready()) {
+        await ws.play()
+      }
+    }
   }
 
   const pause = () => {
-    setIsPlaying(false)
-    // WaveSurfer pause will be handled by the player component
+    const ws = wavesurfer()
+    if (ws) {
+      ws.pause()
+    }
   }
 
   const resume = () => {
-    setIsPlaying(true)
-    // WaveSurfer play will be handled by the player component
+    const ws = wavesurfer()
+    if (ws && ready()) {
+      ws.play()
+    }
   }
 
   const stop = () => {
+    const ws = wavesurfer()
+    if (ws) {
+      ws.stop()
+    }
     setCurrentTrack(null)
     setIsPlaying(false)
     setCurrentTime(0)
     setDuration(0)
+    setReady(false)
     setError(null)
-    // WaveSurfer stop will be handled by the player component
   }
 
   const seek = (time: number) => {
-    setCurrentTime(time)
-    // WaveSurfer seek will be handled by the player component
+    const ws = wavesurfer()
+    if (ws && ready()) {
+      ws.setTime(time)
+    }
   }
 
   const setVolume = (vol: number) => {
     const clampedVol = Math.max(0, Math.min(1, vol))
     setVolumeSignal(clampedVol)
-    // WaveSurfer volume will be handled by the player component
+    
+    const ws = wavesurfer()
+    if (ws) {
+      ws.setVolume(clampedVol)
+    }
   }
 
   const skipForward = (seconds: number = 10) => {
     const newTime = Math.min(currentTime() + seconds, duration())
-    setCurrentTime(newTime)
-    // WaveSurfer seek will be handled by the player component
+    seek(newTime)
   }
 
   const skipBackward = (seconds: number = 10) => {
     const newTime = Math.max(currentTime() - seconds, 0)
-    setCurrentTime(newTime)
-    // WaveSurfer seek will be handled by the player component
+    seek(newTime)
   }
 
   const next = () => {
@@ -158,6 +286,35 @@ export function PlayerProvider(props: { children: any }) {
     }
   }
 
+  const zoom = (minPxPerSec: number) => {
+    const ws = wavesurfer()
+    if (ws) {
+      ws.zoom(minPxPerSec)
+    }
+  }
+
+  const setScroll = (pixels: number) => {
+    const ws = wavesurfer()
+    if (ws) {
+      ws.setScroll(pixels)
+    }
+  }
+
+  const setScrollTime = (time: number) => {
+    const ws = wavesurfer()
+    if (ws) {
+      ws.setScrollTime(time)
+    }
+  }
+
+  // Cleanup on unmount
+  onCleanup(() => {
+    const ws = wavesurfer()
+    if (ws) {
+      ws.destroy()
+    }
+  })
+
   const contextValue: PlayerContextType = {
     state,
     play,
@@ -169,7 +326,12 @@ export function PlayerProvider(props: { children: any }) {
     skipForward,
     skipBackward,
     next,
-    previous
+    previous,
+    setWaveSurfer,
+    getWaveSurfer,
+    zoom,
+    setScroll,
+    setScrollTime
   }
 
   return PlayerContext.Provider({
