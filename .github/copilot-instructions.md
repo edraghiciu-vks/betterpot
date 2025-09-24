@@ -49,7 +49,7 @@ bun run build              # Build all packages and apps - typically takes ~3 se
 bun run build:packages     # Build packages only - takes ~5 seconds
 
 # Testing - NEVER CANCEL, timeout 30+ minutes  
-bun test                   # All tests (82/82 passing) - completes in <1 second
+bun test                   # All tests passing - completes in <1 second
 bun test --watch           # Watch mode for development
 bun test token-manager.test.ts  # Specific test file
 
