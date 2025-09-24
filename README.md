@@ -184,6 +184,19 @@ FRONTEND_URL=http://localhost:3000
 - **API Server**: http://localhost:8000
 - **API Health**: http://localhost:8000/health
 
+### 🚀 GitHub Codespaces Support
+
+This project includes a complete devcontainer configuration for GitHub Codespaces:
+
+- **One-click setup** - Automatic Bun installation and project setup
+- **Pre-configured environment** - All development tools included
+- **Port forwarding** - Automatic forwarding for web app and API
+- **VS Code extensions** - TypeScript, Tailwind, Bun support, and more
+
+**Quick start**: Click "Code" → "Codespaces" → "Create codespace"
+
+See [`.devcontainer/README.md`](.devcontainer/README.md) for detailed information.
+
 ## 🎯 Key Features
 
 ### ✅ Currently Working
