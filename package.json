@@ -13,13 +13,13 @@
     "dev:api": "turbo run dev --filter=@betterpot/api",
     "dev:web": "turbo run dev --filter=@betterpot/web",
     "build": "turbo run build",
-    "build:packages": "turbo run build --filter='packages/*'",
+    "build:packages": "turbo run build --filter='./packages/*'",
     "test": "turbo run test",
     "test:watch": "turbo run test --watch",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
     "clean": "turbo run clean && rm -rf node_modules",
-    "setup": "bun install && turbo run build --filter='packages/*'"
+    "setup": "bun install && turbo run build --filter='./packages/*'"
   },
   "devDependencies": {
     "@types/bun": "latest",
