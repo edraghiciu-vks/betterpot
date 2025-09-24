@@ -170,13 +170,14 @@ export const TracksTable = (props: TracksTableProps) => {
 
   return (
     <div class="tracks-table-container">
-      {/* Results summary */}
-      <Show when={!props.isLoading && props.tracks.length > 0}>
-        <div class="tracks-table-summary">
-          Showing {((props.currentPage - 1) * props.tracks.length) + 1} to {(props.currentPage - 1) * props.tracks.length + props.tracks.length} of {props.totalTracks} tracks
-        </div>
-      </Show>
-
+      {/* Pagination */}
+      {/* <Show when={!props.isLoading && props.tracks.length > 0}>
+        <PaginationControls
+          currentPage={props.currentPage}
+          totalPages={props.totalPages}
+          onPageChange={props.onPageChange}
+        />
+      </Show> */}
       {/* Table */}
       <Table class="tracks-table">
         <TableHeader class="tracks-table-header">
@@ -297,15 +298,13 @@ export const TracksTable = (props: TracksTableProps) => {
           </Show>
         </TableBody>
       </Table>
-
-      {/* Pagination */}
+      {/* Results summary */}
       <Show when={!props.isLoading && props.tracks.length > 0}>
-        <PaginationControls
-          currentPage={props.currentPage}
-          totalPages={props.totalPages}
-          onPageChange={props.onPageChange}
-        />
+        <div class="tracks-table-summary">
+          Showing {((props.currentPage - 1) * props.tracks.length) + 1} to {(props.currentPage - 1) * props.tracks.length + props.tracks.length} of {props.totalTracks} tracks
+        </div>
       </Show>
+
     </div>
   );
 };

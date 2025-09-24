@@ -72,6 +72,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@betterpot/shared-types": "workspace:*",
+        "@corvu/resizable": "^0.2.5",
         "@kobalte/core": "^0.13.11",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
@@ -141,6 +142,8 @@
     "@betterpot/ui-kit": ["@betterpot/ui-kit@workspace:packages/ui-kit"],
 
     "@betterpot/web": ["@betterpot/web@workspace:apps/web"],
+
+    "@corvu/resizable": ["@corvu/resizable@0.2.5", "", { "dependencies": { "@corvu/utils": "~0.4.2" }, "peerDependencies": { "solid-js": "^1.8" } }, "sha512-psax38DraM9SXtaNh/sfvizGO6xLCL4sqT4rWYlMZP5ZsUM05Q30tvXgnTo2roQFNOz2e06WofhDsBXTjY6g4A=="],
 
     "@corvu/utils": ["@corvu/utils@0.4.2", "", { "dependencies": { "@floating-ui/dom": "^1.6.11" }, "peerDependencies": { "solid-js": "^1.8" } }, "sha512-Ox2kYyxy7NoXdKWdHeDEjZxClwzO4SKM8plAaVwmAJPxHMqA0rLOoAsa+hBDwRLpctf+ZRnAd/ykguuJidnaTA=="],
 

@@ -12,3 +12,9 @@ export {
   TableCell, 
   TableCaption 
 } from './components/table';
+export { 
+  Resizable, 
+  ResizablePanel, 
+  ResizableHandle 
+} from './components/resizable';
+export { Separator } from './components/separator';
