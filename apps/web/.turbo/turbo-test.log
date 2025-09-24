@@ -1,24 +1,16 @@
 
-[0m[2m[35m$[0m [2m[1mvitest[0m
+[0m[2m[35m$[0m [2m[1mvitest[0m
 [?25l[33m[7m[33m Vitest [33m[27m "deps.inline" is deprecated. If you rely on vite-node directly, use "server.deps.inline" instead. Otherwise, consider using "deps.optimizer.web.include"[39m
 
-[1m[44m DEV [49m[22m [34mv3.2.4 [39m[90m/Users/eduarddraghiciu/Documents/beatport-api/betterpot/apps/web[39m
+[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90m/home/runner/work/betterpot/betterpot/apps/web[39m
 
-[?2026h
-[1m[33m ❯ [39m[22msrc/__tests__/library.test.ts[2m [queued][22m
+ [32m✓[39m src/__tests__/search.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m src/__tests__/library.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/__tests__/player.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
 
-[2m Test Files [22m[1m[32m0 passed[39m[22m[90m (2)[39m
-[2m      Tests [22m[1m[32m0 passed[39m[22m[90m (0)[39m
-[2m   Start at [22m13:33:46
-[2m   Duration [22m403ms
-[?2026l[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K[1A[K [32m✓[39m src/__tests__/player.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m src/__tests__/library.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m25 passed[39m[22m[90m (25)[39m
+[2m   Start at [22m 03:41:59
+[2m   Duration [22m 1.32s[2m (transform 182ms, setup 732ms, collect 146ms, tests 31ms, environment 2.01s, prepare 405ms)[22m
 
-[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
-[2m      Tests [22m [1m[32m6 passed[39m[22m[90m (6)[39m
-[2m   Start at [22m 13:33:46
-[2m   Duration [22m 544ms[2m (transform 34ms, setup 153ms, collect 25ms, tests 5ms, environment 642ms, prepare 69ms)[22m
-
-[1m[42m PASS [49m[22m [32mWaiting for file changes...[39m
-       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
-[?25h[?25h[0m[31merror[0m[2m:[0m script [1m"test"[0m exited with code 130[0m
+[?25h
