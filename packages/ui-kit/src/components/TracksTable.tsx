@@ -2,7 +2,6 @@ import { JSX, Show, For } from 'solid-js';
 import { Button } from './Button';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from './table';
 import type { BeatportTrack } from '@betterpot/shared-types';
-import './TracksTable.css';
 
 interface TracksTableProps {
   tracks: BeatportTrack[];

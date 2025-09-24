@@ -3,19 +3,19 @@
 [0m[1mbun test [0m[2mv1.2.22 (6bafe260)[0m
 [0m
 src/routes/__tests__/search.test.ts:
-[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should return tracks for valid search query[0m [0m[2m[3.00ms[0m[2m][0m
-[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should return 400 for missing query parameter[0m [0m[2m[1.00ms[0m[2m][0m
-[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should handle pagination parameters correctly[0m
-[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should limit per_page to maximum of 100[0m [0m[2m[1.00ms[0m[2m][0m
-[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should handle optional filter parameters[0m
-[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should handle authentication when no existing token[0m
+[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should return tracks for valid search query[0m [0m[2m[5.00ms[0m[2m][0m
+[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should return 400 for missing query parameter[0m
+[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should handle pagination parameters correctly[0m [0m[2m[1.00ms[0m[2m][0m
+[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should limit per_page to maximum of 100[0m
+[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should handle optional filter parameters[0m [0m[2m[1.00ms[0m[2m][0m
+[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should handle authentication when no existing token[0m [0m[2m[1.00ms[0m[2m][0m
 [0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should handle manual token authentication[0m
 [0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should return 500 when authentication is not configured[0m [0m[2m[1.00ms[0m[2m][0m
 [0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should handle API errors gracefully[0m
-[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should calculate total_pages correctly[0m
-[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should handle empty results[0m [0m[2m[1.00ms[0m[2m][0m
+[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should calculate total_pages correctly[0m [0m[2m[1.00ms[0m[2m][0m
+[0m[32m✓[0m [0mSearch Routes[2m > [0mGET /search/tracks[2m >[0m[1m should handle empty results[0m
 
 [0m[32m 11 pass[0m
 [0m[2m 0 fail[0m
  34 expect() calls
-Ran 11 tests across 1 file. [0m[2m[[1m44.00ms[0m[2m][0m
+Ran 11 tests across 1 file. [0m[2m[[1m47.00ms[0m[2m][0m
