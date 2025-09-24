@@ -31,6 +31,7 @@
     "bun": ">=1.0.0"
   },
   "dependencies": {
+    "@corvu/resizable": "^0.2.5",
     "@kobalte/core": "^0.13.11",
     "@tanstack/solid-table": "^8.21.3",
     "autoprefixer": "^10.4.21",
