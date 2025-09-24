@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
     "outDir": "./dist",
     "rootDir": "./src",
     "declaration": true,

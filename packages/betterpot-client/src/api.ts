@@ -1,5 +1,7 @@
 // BeatportAPI class - extracted from main index.ts
 import { TokenManager, type StoredToken } from './token-manager';
+import { RequestManager, RequestDeduplicator, type RequestOptions } from './request-utils';
+import { type BeatportAPIConfig, mergeConfig, getRandomUserAgent } from './config';
 
 export interface TokenResponse {
   access_token: string;
@@ -17,12 +19,18 @@ export class BeatportAPI {
   private baseUrl = 'https://api.beatport.com/v4';
   private redirectUri = 'https://api.beatport.com/v4/auth/o/post-message/';
   private tokenManager: TokenManager;
+  private requestManager: RequestManager;
+  private deduplicator: RequestDeduplicator;
+  private config: Required<BeatportAPIConfig>;
 
-  constructor(username?: string, password?: string, clientId?: string) {
+  constructor(username?: string, password?: string, clientId?: string, config?: Partial<BeatportAPIConfig>) {
     this.username = username;
     this.password = password;
     this.clientId = clientId;
+    this.config = mergeConfig(config);
     this.tokenManager = new TokenManager();
+    this.requestManager = new RequestManager(this.config);
+    this.deduplicator = new RequestDeduplicator();
   }
 
   // Check for existing valid token first
@@ -41,46 +49,80 @@ export class BeatportAPI {
       return this.clientId;
     }
     
-    try {
-      // Fetch the docs page HTML
-      const docsResponse = await fetch('https://api.beatport.com/v4/docs/');
-      const docsHtml = await docsResponse.text();
-      
-      // Find JavaScript files in the HTML
-      const scriptMatches = docsHtml.match(/src="(.*?\.js)"/g);
-      
-      if (!scriptMatches) {
-        throw new Error('No JavaScript files found in docs page');
-      }
-
-      // Search each JS file for the API_CLIENT_ID
-      for (const scriptMatch of scriptMatches) {
-        const scriptPath = scriptMatch.match(/src="(.*?\.js)"/)?.[1];
-        if (!scriptPath) continue;
-
-        const scriptUrl = `https://api.beatport.com${scriptPath}`;
-        
-        try {
-          const jsResponse = await fetch(scriptUrl);
-          const jsContent = await jsResponse.text();
-          
-          // Look for API_CLIENT_ID pattern
-          const clientIdMatch = jsContent.match(/API_CLIENT_ID:\s*['"](.*?)['"]/);
-          if (clientIdMatch && clientIdMatch[1]) {
-            const clientId = clientIdMatch[1];
-            this.clientId = clientId;
-            return clientId;
+    return this.deduplicator.deduplicate('get-client-id', async () => {
+      try {
+        // Fetch the docs page HTML with caching
+        const docsHtml = await this.requestManager.fetch<string>('https://api.beatport.com/v4/docs/', {
+          method: 'GET',
+          cacheKey: 'docs-page',
+          headers: {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
           }
-        } catch (jsError) {
-          // Continue to next script if this one fails
-          continue;
+        }).then(response => {
+          // Since we're expecting HTML, we need to handle it differently
+          return fetch('https://api.beatport.com/v4/docs/', {
+            headers: {
+              'User-Agent': this.config.userAgent,
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.5',
+              'Accept-Encoding': 'gzip, deflate, br',
+              'DNT': '1',
+              'Connection': 'keep-alive',
+              'Upgrade-Insecure-Requests': '1',
+            }
+          }).then(res => res.text());
+        });
+        
+        // Find JavaScript files in the HTML
+        const scriptMatches = docsHtml.match(/src="(.*?\.js)"/g);
+        
+        if (!scriptMatches) {
+          throw new Error('No JavaScript files found in docs page');
         }
+
+        // Search each JS file for the API_CLIENT_ID
+        for (const scriptMatch of scriptMatches) {
+          const scriptPath = scriptMatch.match(/src="(.*?\.js)"/)?.[1];
+          if (!scriptPath) continue;
+
+          const scriptUrl = `https://api.beatport.com${scriptPath}`;
+          
+          try {
+            const jsContent = await fetch(scriptUrl, {
+              headers: {
+                'User-Agent': getRandomUserAgent(), // Use random UA for each script request
+                'Accept': 'application/javascript, */*',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Referer': 'https://api.beatport.com/v4/docs/',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+              }
+            }).then(res => res.text());
+            
+            // Look for API_CLIENT_ID pattern
+            const clientIdMatch = jsContent.match(/API_CLIENT_ID:\s*['"](.*?)['"]/);
+            if (clientIdMatch && clientIdMatch[1]) {
+              const clientId = clientIdMatch[1];
+              this.clientId = clientId;
+              return clientId;
+            }
+          } catch (jsError) {
+            // Continue to next script if this one fails
+            continue;
+          }
+        }
+        
+        throw new Error('Could not find API_CLIENT_ID in any JavaScript files');
+      } catch (error) {
+        throw new Error(`Failed to scrape client_id: ${error}`);
       }
-      
-      throw new Error('Could not find API_CLIENT_ID in any JavaScript files');
-    } catch (error) {
-      throw new Error(`Failed to scrape client_id: ${error}`);
-    }
+    });
   }
 
   // Method 1: Username/Password Authentication (like beets Method 1)
@@ -119,12 +161,21 @@ export class BeatportAPI {
     };
 
     try {
-      // Step 1: Login to get session cookies
+      // Step 1: Login to get session cookies with enhanced headers
       const loginResponse = await fetch(`${this.baseUrl}/auth/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+          'User-Agent': this.config.userAgent,
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Cache-Control': 'no-cache',
+          'DNT': '1',
+          'Connection': 'keep-alive',
+          'Sec-Fetch-Dest': 'empty',
+          'Sec-Fetch-Mode': 'cors',
+          'Sec-Fetch-Site': 'same-origin',
         },
         body: JSON.stringify({
           username: user,
@@ -155,7 +206,17 @@ export class BeatportAPI {
         method: 'GET',
         headers: {
           'Cookie': formatCookies(),
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+          'User-Agent': this.config.userAgent,
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Cache-Control': 'no-cache',
+          'DNT': '1',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1',
+          'Sec-Fetch-Dest': 'document',
+          'Sec-Fetch-Mode': 'navigate',
+          'Sec-Fetch-Site': 'same-origin',
         },
         redirect: 'manual', // Don't follow redirects automatically
       });
@@ -194,7 +255,17 @@ export class BeatportAPI {
               headers: {
                 'Cookie': formatCookies(),
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+                'User-Agent': this.config.userAgent,
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Cache-Control': 'no-cache',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'same-origin',
+                'Referer': authorizeUrl.toString(),
               },
               body: new URLSearchParams({
                 'allow': 'Authorize',
@@ -223,7 +294,16 @@ export class BeatportAPI {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+          'User-Agent': this.config.userAgent,
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Cache-Control': 'no-cache',
+          'DNT': '1',
+          'Connection': 'keep-alive',
+          'Sec-Fetch-Dest': 'empty',
+          'Sec-Fetch-Mode': 'cors',
+          'Sec-Fetch-Site': 'same-origin',
         },
         body: new URLSearchParams({
           code: authCode,
@@ -254,7 +334,13 @@ export class BeatportAPI {
   // Method 2: Manual token extraction (like beets Method 2)
   async authenticateWithManualToken(): Promise<void> {
     // Try to load from environment
-    const tokenEnv = process.env.BEATPORT_TOKEN;
+    let tokenEnv: string | undefined;
+    try {
+      tokenEnv = typeof process !== 'undefined' && process.env ? process.env.BEATPORT_TOKEN : undefined;
+    } catch {
+      tokenEnv = undefined;
+    }
+    
     if (tokenEnv) {
       try {
         const tokenData = JSON.parse(tokenEnv) as TokenResponse;
@@ -274,17 +360,14 @@ export class BeatportAPI {
       throw new Error('No access token available. Please authenticate first.');
     }
 
-    const response = await fetch(`${this.baseUrl}/auth/o/introspect/`, {
+    return this.requestManager.fetch(`${this.baseUrl}/auth/o/introspect/`, {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${this.accessToken}`,
+        'Accept': 'application/json',
       },
+      cacheKey: 'introspect',
     });
-
-    if (!response.ok) {
-      throw new Error(`Introspection failed: ${response.status} ${response.statusText}`);
-    }
-
-    return await response.json();
   }
 
   // Make authenticated API requests
@@ -293,17 +376,14 @@ export class BeatportAPI {
       throw new Error('No access token available. Please authenticate first.');
     }
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+    return this.requestManager.fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${this.accessToken}`,
+        'Accept': 'application/json',
       },
+      cacheKey: `api:${endpoint}`,
     });
-
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-    }
-
-    return await response.json();
   }
 
   // Search tracks with enhanced parameters and pagination
@@ -333,7 +413,12 @@ export class BeatportAPI {
     if (params.key) searchParams.append('key_name', params.key);
     if (params.sort) searchParams.append('order_by', params.sort);
 
-    return await this.makeRequest(`/catalog/tracks/?${searchParams.toString()}`);
+    const endpoint = `/catalog/tracks/?${searchParams.toString()}`;
+    const cacheKey = `search:tracks:${JSON.stringify(params)}`;
+    
+    return this.deduplicator.deduplicate(cacheKey, () => 
+      this.makeRequest(endpoint)
+    );
   }
 
   // Search releases (example API usage)
@@ -349,11 +434,43 @@ export class BeatportAPI {
       searchParams.append('artist_name', query);
     }
 
-    return await this.makeRequest(`/catalog/releases/?${searchParams.toString()}`);
+    const endpoint = `/catalog/releases/?${searchParams.toString()}`;
+    const cacheKey = `search:releases:${query}`;
+    
+    return this.deduplicator.deduplicate(cacheKey, () =>
+      this.makeRequest(endpoint)
+    );
   }
 
   // Get current access token
   getAccessToken(): string | undefined {
     return this.accessToken;
+  }
+
+  // Get cache statistics for monitoring and debugging
+  getCacheStats() {
+    return this.requestManager.getCacheStats();
+  }
+
+  // Clear all cached data
+  clearCache(): void {
+    this.requestManager.clearCache();
+  }
+
+  // Update configuration at runtime
+  updateConfig(newConfig: Partial<BeatportAPIConfig>): void {
+    this.config = mergeConfig({ ...this.config, ...newConfig });
+    this.requestManager = new RequestManager(this.config);
+  }
+
+  // Get current configuration
+  getConfig(): Required<BeatportAPIConfig> {
+    return { ...this.config };
+  }
+
+  // Clean up resources
+  destroy(): void {
+    this.requestManager.clearCache();
+    this.deduplicator.clear();
   }
 }
