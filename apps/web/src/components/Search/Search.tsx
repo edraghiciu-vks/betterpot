@@ -3,6 +3,7 @@ import { Button, Input, TracksTable } from '@betterpot/ui-kit';
 import { beatportApiService, ApiError } from '../../services/beatportApi';
 import { usePlayer } from '../../stores/player';
 import type { SearchTracksResponse, BeatportTrack } from '@betterpot/shared-types';
+import '../../styles/TracksTable.css';
 
 interface SearchParams {
   query: string;
