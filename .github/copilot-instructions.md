@@ -45,7 +45,7 @@ bun run dev:api            # API server only on port 8001
 bun run dev:web            # Web frontend only on port 3000
 
 # Building
-bun run build              # Build all packages and apps - takes ~3 seconds - NEVER CANCEL, timeout 30+ minutes
+bun run build              # Build all packages and apps - typically takes ~3 seconds (can take much longer on first run or in CI, so timeout is set to 30+ minutes; do not cancel)
 bun run build:packages     # Build packages only - takes ~5 seconds
 
 # Testing - NEVER CANCEL, timeout 30+ minutes  
