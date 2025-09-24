@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp src/components/*.css dist/components/ || true",
     "dev": "tsc --watch",
     "test": "echo 'No tests for UI kit yet'",
     "type-check": "tsc --noEmit"
