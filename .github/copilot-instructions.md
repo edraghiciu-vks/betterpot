@@ -121,7 +121,7 @@ BEATPORT_TOKEN='{"access_token":"...","expires_in":36000}' bun run index.ts
 - **Client ID Scraping Fails**: Beatport changed their documentation structure
 - **Auth Flow Breaks**: OAuth redirect handling is complex, may need manual token fallback  
 - **Token Expiry**: Always check `TokenManager.getValidToken()` first
-- **Type Error in Web App**: Known issue in `src/components/Search/Search.tsx:142` - invalid Button variant
+- **Type Error in Web App**: Known issue in `src/components/Search/Search.tsx` (invalid Button variant in the Search component)
 
 ### Frontend Architecture (SolidJS)
 - **State Management**: Context providers in `apps/web/src/stores/` (auth, player, library)
