@@ -135,9 +135,9 @@ BEATPORT_TOKEN='{"access_token":"...","expires_in":36000}' bun run index.ts
 
 ```bash
 # Package-level tests (no live API calls)
-cd packages/betterpot-client && bun test  # 46/46 tests
-cd apps/web && bun test                   # 21/21 tests  
-cd apps/api && bun test                   # 15/15 tests
+cd packages/betterpot-client && bun test  # run all tests
+cd apps/web && bun test                   # run all tests
+cd apps/api && bun test                   # run all tests
 ```
 
 **Test Categories:**
