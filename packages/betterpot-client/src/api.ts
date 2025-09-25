@@ -63,19 +63,6 @@ export class BeatportAPI {
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
           }
-        }).then(response => {
-          // Since we're expecting HTML, we need to handle it differently
-          return fetch('https://api.beatport.com/v4/docs/', {
-            headers: {
-              'User-Agent': this.config.userAgent,
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-              'Accept-Language': 'en-US,en;q=0.5',
-              'Accept-Encoding': 'gzip, deflate, br',
-              'DNT': '1',
-              'Connection': 'keep-alive',
-              'Upgrade-Insecure-Requests': '1',
-            }
-          }).then(res => res.text());
         });
         
         // Find JavaScript files in the HTML
