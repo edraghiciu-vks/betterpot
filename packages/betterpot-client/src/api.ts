@@ -323,7 +323,7 @@ export class BeatportAPI {
     // Try to load from environment
     let tokenEnv: string | undefined;
     try {
-      tokenEnv = typeof process !== 'undefined' && process.env ? process.env.BEATPORT_TOKEN : undefined;
+      tokenEnv = typeof process !== 'undefined' && (process as any).env ? (process as any).env.BEATPORT_TOKEN : undefined;
     } catch {
       tokenEnv = undefined;
     }

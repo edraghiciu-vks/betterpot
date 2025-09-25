@@ -25,7 +25,8 @@ export function getRealisticUserAgent(): string {
   ];
   
   const randomIndex = Math.floor(Math.random() * userAgents.length);
-  return userAgents[randomIndex];
+  const selectedUA = userAgents[randomIndex];
+  return selectedUA || userAgents[0] || 'Mozilla/5.0 (compatible; BetterpotClient/1.0)';
 }
 
 /**

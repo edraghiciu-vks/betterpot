@@ -2,18 +2,14 @@
 
 // Polyfill for os functions in case they're not available
 declare global {
-  var process: {
-    versions: { bun?: string };
-    platform: string;
-    arch: string;
-  };
+  var process: any;
 }
 
 // Mock functions if not in Node.js environment
 const getPlatform = (): string => {
   try {
-    if (typeof process !== 'undefined' && process.platform) {
-      return process.platform;
+    if (typeof process !== 'undefined' && (process as any).platform) {
+      return (process as any).platform;
     }
   } catch {
     // Fallback for non-Node environments
@@ -23,8 +19,8 @@ const getPlatform = (): string => {
 
 const getArch = (): string => {
   try {
-    if (typeof process !== 'undefined' && process.arch) {
-      return process.arch;
+    if (typeof process !== 'undefined' && (process as any).arch) {
+      return (process as any).arch;
     }
   } catch {
     // Fallback for non-Node environments
@@ -34,8 +30,8 @@ const getArch = (): string => {
 
 const getBunVersion = (): string => {
   try {
-    if (typeof process !== 'undefined' && process.versions?.bun) {
-      return process.versions.bun;
+    if (typeof process !== 'undefined' && (process as any).versions?.bun) {
+      return (process as any).versions.bun;
     }
   } catch {
     // Fallback for non-Node environments
