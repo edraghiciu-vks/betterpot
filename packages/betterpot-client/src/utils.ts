@@ -56,12 +56,23 @@ export function createMemoryStorage(): SimpleStorage {
 export class SimpleCache {
   private cache = new Map<string, { data: any; expires: number }>();
   private defaultTTL = 5 * 60 * 1000; // 5 minutes
+  private cleanupIntervalId: ReturnType<typeof setInterval> | null = null;
   
   constructor(ttl?: number) {
     if (ttl) this.defaultTTL = ttl;
     
     // Clean expired entries every minute
-    setInterval(() => this.cleanup(), 60000);
+    this.cleanupIntervalId = setInterval(() => this.cleanup(), 60000);
+  }
+
+  /**
+   * Call this method to clear the cleanup interval and allow the cache to be garbage collected.
+   */
+  destroy(): void {
+    if (this.cleanupIntervalId !== null) {
+      clearInterval(this.cleanupIntervalId);
+      this.cleanupIntervalId = null;
+    }
   }
   
   get<T>(key: string): T | null {
