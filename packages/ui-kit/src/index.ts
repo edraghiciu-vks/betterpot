@@ -18,3 +18,17 @@ export {
   ResizableHandle 
 } from './components/resizable';
 export { Separator } from './components/separator';
+export { Flex } from './components/flex';
+export { 
+  Avatar, 
+  AvatarImage, 
+  AvatarFallback 
+} from './components/avatar';
+export { 
+  TextField, 
+  TextFieldInput, 
+  TextFieldTextArea, 
+  TextFieldLabel, 
+  TextFieldDescription, 
+  TextFieldErrorMessage 
+} from './components/text-field';

@@ -3,6 +3,7 @@ import { Router, Route } from '@solidjs/router'
 import { AuthProvider, useAuth } from './stores/auth'
 import { PlayerProvider } from './stores/player'
 import { LibraryProvider } from './stores/library'
+import { SearchProvider } from './stores/search'
 
 // Layout Components
 import { Header } from './components/Layout/Header'
@@ -41,25 +42,27 @@ const AppErrorDialog = () => {
 const App = (props: any) => {
   return (
     <AuthProvider>
-      <PlayerProvider>
-        <LibraryProvider>
-          <div class="app">
-            {/* Header stays on all pages */}
-            <Header />
-            
-            {/* Sticky WaveSurfer player appears below header when track is playing */}
-            <StickyWaveSurferPlayer />
-            
-            {/* Main content area - changes based on route */}
-            <main class="main-content">
-              {props.children}
-            </main>
-            
-            {/* Global error dialog - inside AuthProvider context */}
-            <AppErrorDialog />
-          </div>
-        </LibraryProvider>
-      </PlayerProvider>
+      <SearchProvider>
+        <PlayerProvider>
+          <LibraryProvider>
+            <div class="app">
+              {/* Header stays on all pages */}
+              <Header />
+              
+              {/* Sticky WaveSurfer player appears below header when track is playing */}
+              <StickyWaveSurferPlayer />
+              
+              {/* Main content area - changes based on route */}
+              <main class="main-content">
+                {props.children}
+              </main>
+              
+              {/* Global error dialog - inside AuthProvider context */}
+              <AppErrorDialog />
+            </div>
+          </LibraryProvider>
+        </PlayerProvider>
+      </SearchProvider>
     </AuthProvider>
   )
 }
